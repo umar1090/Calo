@@ -11,6 +11,9 @@
     --chart-single: #587650;
     --chart-grid: #ebe4d6;
     --chart-axis: #61786a;
+    /* Safe-area insets: the Android app injects --safe-area-inset-*; browsers provide env(). */
+    --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+    --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   }
   html {
     -webkit-tap-highlight-color: transparent;
@@ -19,6 +22,16 @@
   body {
     @apply bg-cream-100 font-sans text-forest-900 antialiased;
     font-feature-settings: 'ss01', 'cv11';
+    padding-top: var(--sat);
+  }
+  /* Paints the status-bar strip so content never shows through it while scrolling. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0 0 auto;
+    height: var(--sat);
+    z-index: 45;
+    background: #faf6ee;
   }
   h1, h2, h3 {
     @apply text-forest-900;
@@ -94,5 +107,8 @@
 }
 
 .safe-bottom {
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding-bottom: max(0.75rem, var(--sab));
+}
+.sticky-under-status {
+  top: var(--sat);
 }

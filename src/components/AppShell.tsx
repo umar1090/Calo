@@ -35,7 +35,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:flex">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-cream-300/70 bg-cream-50/70 px-4 py-6 lg:flex">
+      <aside className="sticky-under-status sticky hidden h-dvh w-64 shrink-0 flex-col border-r border-cream-300/70 bg-cream-50/70 px-4 py-6 lg:flex">
         <Link to="/" className="px-3">
           <Logo />
         </Link>
@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0 flex-1">
         {/* Mobile header */}
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-cream-300/50 bg-cream-100/85 px-4 py-2.5 backdrop-blur lg:hidden">
+        <header className="sticky-under-status sticky z-30 flex items-center justify-between border-b border-cream-300/50 bg-cream-100/85 px-4 py-2.5 backdrop-blur lg:hidden">
           <Link to="/" className="flex items-center gap-2" aria-label="NutriTrack home">
             <LogoMark className="h-8 w-8" />
             <span className="font-display text-lg font-semibold">NutriTrack</span>

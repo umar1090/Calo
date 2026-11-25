@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { Bot, Download, KeyRound, LogOut, Pencil, Ruler, Settings2, ShieldAlert, Upload, UserRound } from 'lucide-react';
 import { PageHeader } from '@/components/AppShell';
 import { Card, CardHeader, Field, Segmented, Sheet } from '@/components/ui/primitives';
@@ -31,12 +32,24 @@ export default function ProfilePage() {
 
   const label = <T extends string>(list: { value: T; label: string }[], v: T) => list.find((x) => x.value === v)?.label ?? v;
 
-  const exportData = () => {
+  const exportData = async () => {
+    const fileName = `nutritrack-backup-${today}.json`;
+    if (Capacitor.isNativePlatform()) {
+      // Android app: write the backup to app storage, then open the share sheet (Drive, Files, WhatsApp…).
+      try {
+        const [{ Filesystem, Directory, Encoding }, { Share }] = await Promise.all([import('@capacitor/filesystem'), import('@capacitor/share')]);
+        const file = await Filesystem.writeFile({ path: fileName, data: store.exportBackup(), directory: Directory.Cache, encoding: Encoding.UTF8 });
+        await Share.share({ title: 'NutriTrack backup', files: [file.uri], dialogTitle: 'Save your NutriTrack backup' });
+      } catch (e) {
+        if (!(e instanceof Error && /cancel/i.test(e.message))) toast('Could not create the backup file. Please try again.', 'error');
+      }
+      return;
+    }
     const blob = new Blob([store.exportBackup()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `nutritrack-backup-${today}.json`;
+    a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();

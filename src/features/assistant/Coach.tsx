@@ -181,7 +181,7 @@ export default function Coach() {
         <div ref={endRef} />
       </div>
 
-      <div className="sticky bottom-[84px] z-10 mt-4 space-y-3 bg-gradient-to-t from-cream-100 via-cream-100 to-cream-100/0 pt-4 lg:bottom-4">
+      <div style={{ bottom: 'calc(70px + max(0.75rem, var(--sab)))' }} className="sticky z-10 mt-4 space-y-3 bg-gradient-to-t from-cream-100 via-cream-100 to-cream-100/0 pt-4 lg:!bottom-4">
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label="Suggested questions">
           {STARTER_PROMPTS.map((p) => (
             <button key={p} className="chip shrink-0 !min-h-[36px] bg-cream-50 text-xs" onClick={() => ask(p)} disabled={busy}>

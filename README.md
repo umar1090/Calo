@@ -61,6 +61,18 @@ npm run test:e2e     # builds, starts preview, runs 24 Playwright steps on phone
 
 The e2e run signs up an adult and a teen, completes onboarding, logs/edits/deletes food, uses the multi-item tray, custom foods, water, check-in, activity plan, timer and logging, asks the coach, checks charts, edits the profile, verifies persistence, checks localStorage holds no plain-text data, and asserts there is no horizontal scrolling at 390 px, 768 px and 1280 px. Screenshots go to `e2e/screenshots/` (git-ignored).
 
+## Android app (APK)
+
+The Android app wraps the same web build with [Capacitor](https://capacitorjs.com) 8. Requirements: JDK 21 and the Android SDK (platform 36, build-tools 36.0.0) with `ANDROID_HOME` set or `android/local.properties` pointing at it.
+
+```bash
+npm run android:apk   # builds the web app, syncs it into android/, runs Gradle
+# → android/app/build/outputs/apk/debug/app-debug.apk
+npm run android:assets  # regenerate launcher icons and splash from the logo
+```
+
+In the app, data is stored on the phone (same encryption as the web app), backups are shared through Android's share sheet, and the layout clears the status and gesture bars. The debug APK is signed with a local debug key, so a later build from a different machine installs only after uninstalling the old one; export a backup first.
+
 ## Project structure
 
 ```
