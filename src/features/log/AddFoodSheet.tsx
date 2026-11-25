@@ -23,7 +23,7 @@ interface Props {
 
 type View = 'search' | 'detail' | 'custom';
 
-const CATEGORY_ORDER: (FoodCategory | 'all')[] = ['all', 'breads', 'rice', 'dal', 'sabzi', 'curry', 'breakfast', 'dairy', 'eggs', 'meat', 'fish', 'fruit', 'nuts', 'snacks', 'sweets', 'beverages', 'salad', 'extras'];
+const CATEGORY_ORDER: (FoodCategory | 'all')[] = ['all', 'breads', 'rice', 'dal', 'sabzi', 'curry', 'breakfast', 'dairy', 'eggs', 'meat', 'fish', 'indo_chinese', 'fruit', 'nuts', 'snacks', 'sweets', 'beverages', 'salad', 'extras'];
 
 const CUSTOM_PORTION_ID = '__custom__';
 

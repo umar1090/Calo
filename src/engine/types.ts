@@ -45,6 +45,17 @@ export type ActivityType =
   | 'yoga'
   | 'stretching'
   | 'dance'
+  | 'hiit'
+  | 'skipping'
+  | 'hiking'
+  | 'stairs'
+  | 'tennis'
+  | 'table_tennis'
+  | 'volleyball'
+  | 'kabaddi'
+  | 'aerobics'
+  | 'martial_arts'
+  | 'household'
   | 'other_sport';
 
 export type Equipment = 'none' | 'dumbbells' | 'resistance_band' | 'gym_access' | 'bicycle' | 'yoga_mat' | 'skipping_rope';
@@ -136,6 +147,10 @@ export interface ExerciseLog {
   minutes: number;
   intensity: Intensity;
   notes?: string;
+  /** Optional, for walking, running, cycling, swimming and hiking: used to work out pace and energy. */
+  distanceKm?: number;
+  /** Optional, for walking: converted to distance from the user's height. */
+  steps?: number;
   /** Muscle- or bone-strengthening flags let weekly guideline tracking work. */
   strength: boolean;
   boneLoading: boolean;

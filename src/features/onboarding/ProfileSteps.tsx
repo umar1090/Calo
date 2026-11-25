@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Info, HeartHandshake } from 'lucide-react';
 import { ChipGroup, Field, Segmented } from '@/components/ui/primitives';
-import { ACTIVITY_LEVELS, ACTIVITY_OPTIONS, ALLERGENS, CUISINES, DIETS, EQUIPMENT, FITNESS_LEVELS, GOALS, SEX_OPTIONS, fmt } from '@/lib/labels';
+import { ACTIVITY_LEVELS, ACTIVITY_OPTIONS, ALLERGENS, CUISINES, DIETS, GOALS, SEX_OPTIONS, fmt } from '@/lib/labels';
 import { computeTargets } from '@/engine/nutrition/targets';
 import { getAgeGroup, getSafetyRules } from '@/engine/safety/policy';
 import type { Profile } from '@/engine/types';
@@ -186,31 +186,14 @@ export function FoodStep({ d, set, errors }: StepProps) {
   );
 }
 
-export function MovementStep({ d, set, errors }: StepProps) {
+export function MovementStep({ d, set }: StepProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
-        <p className="label">Activities you enjoy</p>
+        <p className="label">Activities you usually do</p>
         <ChipGroup multiple label="Activities" options={ACTIVITY_OPTIONS} value={d.sports} onChange={(v) => set({ sports: v as Draft['sports'] })} />
       </div>
-      <div>
-        <p className="label">Equipment you have</p>
-        <ChipGroup multiple label="Equipment" options={EQUIPMENT} value={d.equipment} onChange={(v) => set({ equipment: v as Draft['equipment'] })} />
-      </div>
-      <div>
-        <label className="label" htmlFor="minutes">
-          Time you can usually spare: <span className="num font-semibold text-forest-900">{d.minutesPerDay} min/day</span>
-        </label>
-        <input id="minutes" type="range" min={10} max={120} step={5} value={d.minutesPerDay} onChange={(e) => set({ minutesPerDay: Number(e.target.value) })} className="w-full accent-sage-600" />
-        {errors.minutesPerDay && <p className="text-xs font-medium text-berry-600">{errors.minutesPerDay}</p>}
-      </div>
-      <div>
-        <p className="label">Fitness level</p>
-        <ChipGroup columns label="Fitness level" options={FITNESS_LEVELS} value={d.fitnessLevel} onChange={(v) => set({ fitnessLevel: v as Draft['fitnessLevel'] })} />
-      </div>
-      <Field label="Injuries or physical limitations (optional)" htmlFor="limits" hint="E.g. knee pain, asthma, lower back. Plans will avoid movements that load these areas.">
-        <input id="limits" className="input" maxLength={200} value={d.limitations} onChange={(e) => set({ limitations: e.target.value })} />
-      </Field>
+      <p className="text-sm text-forest-500">These appear first when you log activity. NutriTrack doesn't plan workouts: you log what you did, and it works out energy used, adjusts your food and water estimates and tracks your week.</p>
     </div>
   );
 }

@@ -26,6 +26,7 @@ export type FoodCategory =
   | 'sweets'
   | 'beverages'
   | 'salad'
+  | 'indo_chinese'
   | 'extras';
 
 /** vegan ⊂ veg (lacto-vegetarian) ⊂ egg ⊂ nonveg */
@@ -188,7 +189,7 @@ export const FOODS: Food[] = [
     diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['refined_grain', 'meat_fish'], homemade: true, oil: true, cost: 3,
   }),
   food('curd-rice', 'Curd rice', 'rice', [112, 3.2, 18, 3, 0.4], [['1 bowl', 200], ['1 plate', 300]], {
-    aliases: ['thayir sadam', 'dahi chawal', 'mosaru anna'], allergens: ['dairy'], groups: ['refined_grain', 'dairy'], homemade: true, cuisines: ['south_indian'],
+    aliases: ['thayir sadam', 'dahi chawal', 'mosaru anna', 'hyderabadi chicken biryani', 'dum chicken biryani', 'ambur biryani', 'thalassery biryani', 'malabar biryani'], allergens: ['dairy'], groups: ['refined_grain', 'dairy'], homemade: true, cuisines: ['south_indian'],
   }),
   food('lemon-rice', 'Lemon rice', 'rice', [160, 2.8, 26, 5, 1], [['1 cup', 160], ['1 plate', 250]], {
     aliases: ['chitranna', 'nimmakaya pulihora'], diet: 'vegan', allergens: ['peanut'], groups: ['refined_grain'], homemade: true, oil: true, cuisines: ['south_indian'],
@@ -355,7 +356,7 @@ export const FOODS: Food[] = [
     diet: 'vegan', rootVeg: true, groups: ['refined_grain', 'pulse'], veg: 0.1, homemade: true, oil: true, meals: ['breakfast', 'lunch', 'dinner'], cuisines: ['south_indian'], cost: 2,
   }),
   food('uttapam', 'Uttapam', 'breakfast', [157, 4, 25, 4.5, 2], [['1 uttapam', 120]], {
-    aliases: ['uthappam', 'onion uttapam'], diet: 'vegan', rootVeg: true, groups: ['refined_grain', 'pulse'], veg: 0.15, homemade: true, oil: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+    aliases: ['uthappam', 'onion uttapam', 'mysore masala dosa'], diet: 'vegan', rootVeg: true, groups: ['refined_grain', 'pulse'], veg: 0.15, homemade: true, oil: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
   }),
   food('medu-vada', 'Medu vada', 'breakfast', [263, 7, 25, 15, 4], [['1 vada', 45], ['2 vadas', 90]], {
     aliases: ['uddina vade', 'ulundu vadai', 'vada'], diet: 'vegan', rootVeg: true, groups: ['pulse', 'fried'], meals: ['breakfast', 'snack'], cuisines: ['south_indian'],
@@ -434,18 +435,18 @@ export const FOODS: Food[] = [
     diet: 'egg', allergens: ['egg'], groups: ['egg'], meals: ['breakfast', 'snack'],
   }),
   food('omelette', 'Masala omelette (2 eggs)', 'eggs', [169, 10.5, 2.5, 13, 0.5], [['1 omelette (2 eggs)', 120]], {
-    aliases: ['omlet', 'anda omelette'], diet: 'egg', rootVeg: true, allergens: ['egg'], groups: ['egg'], veg: 0.1, homemade: true, oil: true, meals: ['breakfast', 'snack', 'dinner'],
+    aliases: ['omlet', 'anda omelette', 'egg omelette'], diet: 'egg', rootVeg: true, allergens: ['egg'], groups: ['egg'], veg: 0.1, homemade: true, oil: true, meals: ['breakfast', 'snack', 'dinner'],
   }),
   food('egg-bhurji', 'Egg bhurji', 'eggs', [173, 11, 3, 13, 0.5], [['1 bowl (2 eggs)', 120]], {
     aliases: ['scrambled eggs', 'anda bhurji'], diet: 'egg', rootVeg: true, allergens: ['egg'], groups: ['egg'], veg: 0.1, homemade: true, oil: true, meals: ['breakfast', 'dinner'],
   }),
   food('egg-curry', 'Egg curry', 'eggs', [142, 8, 5, 10, 1], [['1 bowl (2 eggs)', 180]], {
-    aliases: ['anda curry', 'egg masala'], diet: 'egg', rootVeg: true, allergens: ['egg'], groups: ['egg'], veg: 0.1, homemade: true, oil: true,
+    aliases: ['anda curry', 'egg masala', 'egg gravy', 'dim curry', 'dimer dalna', 'muttai kuzhambu'], diet: 'egg', rootVeg: true, allergens: ['egg'], groups: ['egg'], veg: 0.1, homemade: true, oil: true,
   }),
 
   // ------------------------------------------------------- Chicken & meat
   food('chicken-curry', 'Chicken curry (home-style)', 'meat', [145, 12, 4, 9, 0.8], [['1 bowl', 180], ['1 small bowl', 120]], {
-    aliases: ['murgh curry', 'chicken masala', 'kozhi curry'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cost: 2,
+    aliases: ['murgh curry', 'chicken masala', 'kozhi curry', 'chicken gravy', 'desi chicken', 'country chicken curry', 'chicken salan', 'chicken kosha', 'kori gassi'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cost: 2,
   }),
   food('chicken-breast', 'Grilled chicken breast', 'meat', [165, 31, 0, 3.6, 0], [G100, ['150 g', 150]], {
     aliases: ['chicken', 'boiled chicken'], diet: 'nonveg', groups: ['meat_fish'], oil: true, cost: 2, cuisines: ['continental', ...ALL_INDIAN],
@@ -454,30 +455,30 @@ export const FOODS: Food[] = [
     diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['meat_fish'], cost: 3, cuisines: ['north_indian'],
   }),
   food('butter-chicken', 'Butter chicken', 'meat', [198, 12, 6, 14, 1], [['1 bowl', 180]], {
-    aliases: ['murgh makhani'], diet: 'nonveg', rootVeg: true, allergens: ['dairy', 'tree_nut'], groups: ['meat_fish'], homemade: true, oil: true, cost: 3, cuisines: ['north_indian'],
+    aliases: ['murgh makhani', 'tangdi kebab', 'chicken tangdi', 'afghani chicken'], diet: 'nonveg', rootVeg: true, allergens: ['dairy', 'tree_nut'], groups: ['meat_fish'], homemade: true, oil: true, cost: 3, cuisines: ['north_indian'],
   }),
   food('chicken-tikka', 'Chicken tikka', 'meat', [193, 24, 4, 9, 0.5], [['6 pieces', 150]], {
     diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['meat_fish'], meals: ['lunch', 'dinner', 'snack'], cost: 3,
   }),
   food('mutton-curry', 'Mutton curry', 'meat', [185, 13, 4, 13, 0.8], [['1 bowl', 180]], {
-    aliases: ['goat curry', 'gosht', 'rogan josh'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cost: 3,
+    aliases: ['goat curry', 'gosht', 'rogan josh', 'mutton gravy', 'laal maas', 'mutton rogan josh', 'mutton salan', 'kosha mangsho', 'mutton kosha'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cost: 3,
   }),
   food('keema', 'Keema', 'meat', [206, 15, 5, 14, 1.5], [['1 bowl', 150]], {
-    aliases: ['kheema', 'mince'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], veg: 0.1, homemade: true, oil: true, cost: 3,
+    aliases: ['kheema', 'mince', 'chicken keema', 'mutton keema', 'keema matar'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], veg: 0.1, homemade: true, oil: true, cost: 3,
   }),
 
   // ------------------------------------------------------------------ Fish
   food('fish-curry', 'Fish curry (home-style)', 'fish', [131, 13, 4, 7, 0.5], [['1 bowl', 180], ['1 small bowl', 120]], {
-    aliases: ['machli', 'meen curry', 'macher jhol', 'fish gravy'], diet: 'nonveg', rootVeg: true, allergens: ['fish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 2,
+    aliases: ['machli', 'meen curry', 'macher jhol', 'fish gravy', 'rohu curry', 'surmai curry', 'bangda curry', 'mackerel curry', 'machli jhol', 'fish kalia', 'doi maach'], diet: 'nonveg', rootVeg: true, allergens: ['fish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 2,
   }),
   food('fish-fry', 'Fish fry (tawa)', 'fish', [194, 20, 6, 10, 0.3], [['1 piece', 100], ['2 pieces', 200]], {
-    aliases: ['rava fish fry', 'bangda fry', 'pomfret fry'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 2,
+    aliases: ['rava fish fry', 'bangda fry', 'pomfret fry', 'rohu fry', 'katla fry', 'tawa fish', 'surmai fry', 'king fish fry', 'meen varuval', 'mackerel fry'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 2,
   }),
   food('grilled-fish', 'Grilled / steamed fish', 'fish', [116, 20, 0, 4, 0], [G100, ['150 g', 150]], {
-    aliases: ['rohu', 'surmai', 'basa'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], cost: 2,
+    aliases: ['rohu', 'surmai', 'basa', 'tandoori pomfret', 'pomfret', 'steamed fish', 'paturi', 'fish in banana leaf'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], cost: 2,
   }),
   food('prawn-curry', 'Prawn curry', 'fish', [135, 13, 5, 7, 0.5], [['1 bowl', 180]], {
-    aliases: ['jhinga', 'shrimp curry', 'chingri'], diet: 'nonveg', rootVeg: true, allergens: ['shellfish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 3,
+    aliases: ['jhinga', 'shrimp curry', 'chingri', 'prawn malai curry', 'chingri malaikari', 'kolambi curry', 'chemmeen curry'], diet: 'nonveg', rootVeg: true, allergens: ['shellfish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian', 'south_indian', 'west_indian'], cost: 3,
   }),
 
   // ------------------------------------------------------------- Fruit
@@ -707,6 +708,290 @@ export const FOODS: Food[] = [
   food('honey', 'Honey', 'extras', [304, 0.3, 82, 0, 0.2], [['1 tsp', 7], ['1 tbsp', 21]], {
     aliases: ['shahad'], meals: ['breakfast', 'snack', 'beverage'],
   }),
+  // ===================================================== Local & regional additions
+  // ------------------------------------------------------------ Chicken
+  food('chicken-65', 'Chicken 65', 'meat', [240, 20, 9, 14, 0.5], [['4 pieces', 75], ['1 plate (8 pieces)', 150]], {
+    aliases: ['chicken 65 dry'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish', 'fried'], meals: ['lunch', 'dinner', 'snack'], cuisines: ['south_indian'], cost: 2,
+  }),
+  food('chicken-fry', 'Chicken fry / sukka', 'meat', [215, 22, 5, 12, 1], [['1 bowl', 150], ['1 small bowl', 100]], {
+    aliases: ['chicken sukka', 'pepper chicken', 'chicken roast', 'chicken varuval', 'dry chicken', 'chicken chukka'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian', 'west_indian'], cost: 2,
+  }),
+  food('chicken-korma', 'Chicken korma', 'meat', [190, 12, 6, 13, 1], [['1 bowl', 180]], {
+    aliases: ['murgh korma', 'chicken kurma', 'white chicken'], diet: 'nonveg', rootVeg: true, allergens: ['dairy', 'tree_nut'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['north_indian'], cost: 3,
+  }),
+  food('chicken-chettinad', 'Chicken Chettinad', 'meat', [165, 13, 5, 10, 1.5], [['1 bowl', 180]], {
+    aliases: ['chettinad chicken', 'kozhi kuzhambu', 'kozhi curry'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian'], cost: 2,
+  }),
+  food('chicken-ghee-roast', 'Chicken ghee roast', 'meat', [235, 18, 5, 16, 1], [['1 bowl', 150]], {
+    aliases: ['mangalorean ghee roast', 'ghee roast'], diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian'], cost: 3,
+  }),
+  food('kadai-chicken', 'Kadai chicken', 'meat', [175, 14, 5, 11, 1.2], [['1 bowl', 180]], {
+    aliases: ['karahi chicken', 'chicken kadai', 'chicken do pyaza'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], veg: 0.15, homemade: true, oil: true, cuisines: ['north_indian'], cost: 2,
+  }),
+  food('chicken-tikka-masala', 'Chicken tikka masala', 'meat', [175, 13, 6, 11, 1], [['1 bowl', 180]], {
+    diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['north_indian'], cost: 3,
+  }),
+  food('chicken-stew', 'Kerala chicken stew', 'meat', [130, 9, 5, 8, 1], [['1 bowl', 200]], {
+    aliases: ['chicken ishtu', 'chicken stew'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish', 'vegetable'], veg: 0.2, homemade: true, oil: true, cuisines: ['south_indian'], cost: 2,
+  }),
+  food('chicken-seekh-kebab', 'Chicken seekh kebab', 'meat', [175, 20, 4, 9, 0.5], [['2 kebabs', 100], ['4 kebabs', 200]], {
+    aliases: ['chicken kebab', 'reshmi kebab', 'chicken seekh', 'chicken kabab'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], meals: ['lunch', 'dinner', 'snack'], cuisines: ['north_indian'], cost: 2,
+  }),
+  food('chicken-lollipop', 'Chicken lollipop', 'meat', [245, 18, 10, 15, 0.5], [['4 pieces', 140]], {
+    aliases: ['lollipop', 'drums of heaven'], diet: 'nonveg', rootVeg: true, allergens: ['soy'], groups: ['meat_fish', 'fried'], meals: ['snack', 'dinner'], cost: 2,
+  }),
+  food('chicken-liver', 'Chicken liver fry', 'meat', [170, 18, 4, 9, 0.5], [['1 bowl', 120]], {
+    aliases: ['kaleji', 'chicken kaleji', 'liver fry'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true,
+  }),
+  food('chicken-soup', 'Chicken soup', 'meat', [45, 4, 4, 1.5, 0.3], [['1 bowl', 250]], {
+    aliases: ['sweet corn chicken soup', 'chicken clear soup', 'chicken shorba', 'chicken manchow soup'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], meals: ['dinner', 'snack', 'lunch'], cost: 1,
+  }),
+  food('chicken-haleem', 'Haleem', 'meat', [170, 10, 12, 9, 2], [['1 bowl', 250]], {
+    aliases: ['hyderabadi haleem', 'mutton haleem', 'chicken haleem'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish', 'pulse', 'whole_grain'], cuisines: ['south_indian', 'north_indian'], cost: 2,
+  }),
+  food('chicken-pulao', 'Chicken / mutton yakhni pulao', 'rice', [185, 9, 22, 7, 0.8], [['1 plate', 280], ['1 cup', 160]], {
+    aliases: ['yakhni pulao', 'chicken pulao', 'mutton pulao'], diet: 'nonveg', rootVeg: true, groups: ['refined_grain', 'meat_fish'], homemade: true, oil: true, cost: 2,
+  }),
+  food('chicken-sandwich', 'Chicken sandwich', 'snacks', [215, 12, 24, 8, 1.5], [['1 sandwich', 150]], {
+    aliases: ['chicken mayo sandwich', 'grilled chicken sandwich'], diet: 'nonveg', allergens: ['gluten', 'egg'], groups: ['refined_grain', 'meat_fish'], veg: 0.1, meals: ['breakfast', 'snack', 'lunch'], cuisines: ['continental', ...ALL_INDIAN], cost: 2,
+  }),
+  food('chicken-burger', 'Chicken burger', 'snacks', [255, 12, 25, 12, 1.5], [['1 burger', 180]], {
+    diet: 'nonveg', allergens: ['gluten', 'egg', 'dairy'], groups: ['refined_grain', 'meat_fish', 'fried'], meals: ['snack', 'lunch', 'dinner'], cuisines: ['continental', ...ALL_INDIAN], cost: 2,
+  }),
+
+  // ------------------------------------------------------------ Rolls, momos & Indo-Chinese
+  food('chicken-shawarma', 'Chicken shawarma', 'snacks', [215, 12, 22, 9, 1.5], [['1 roll', 250], ['1 plate', 300]], {
+    aliases: ['shawarma', 'chicken wrap'], diet: 'nonveg', rootVeg: true, allergens: ['gluten', 'egg'], groups: ['meat_fish', 'refined_grain'], veg: 0.1, meals: ['snack', 'lunch', 'dinner'], cuisines: ['continental', ...ALL_INDIAN], cost: 2,
+  }),
+  food('chicken-kathi-roll', 'Chicken kathi roll', 'snacks', [235, 11, 26, 10, 1.5], [['1 roll', 200]], {
+    aliases: ['chicken roll', 'kathi roll', 'chicken frankie', 'frankie'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish', 'refined_grain'], veg: 0.1, meals: ['snack', 'lunch', 'dinner'], cuisines: ['east_indian', 'north_indian', 'west_indian'], cost: 2,
+  }),
+  food('egg-roll', 'Egg roll', 'snacks', [250, 9, 27, 12, 1.2], [['1 roll', 180]], {
+    aliases: ['anda roll', 'egg frankie'], diet: 'egg', rootVeg: true, allergens: ['gluten', 'egg'], groups: ['egg', 'refined_grain', 'fried'], meals: ['snack', 'lunch', 'dinner'], cuisines: ['east_indian', 'north_indian'],
+  }),
+  food('paneer-roll', 'Paneer roll', 'snacks', [250, 11, 25, 12, 1.5], [['1 roll', 200]], {
+    aliases: ['paneer kathi roll', 'paneer frankie', 'paneer tikka roll'], rootVeg: true, allergens: ['dairy', 'gluten'], groups: ['dairy', 'refined_grain'], veg: 0.1, meals: ['snack', 'lunch', 'dinner'], cost: 2,
+  }),
+  food('chicken-momos', 'Chicken momos', 'indo_chinese', [175, 10, 22, 5, 1], [['6 momos', 150], ['10 momos', 250]], {
+    aliases: ['momo', 'momos', 'chicken dumplings', 'steamed momos'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish', 'refined_grain'], meals: ['snack', 'dinner'], cuisines: ['east_indian', 'north_indian'],
+  }),
+  food('veg-momos', 'Veg momos', 'indo_chinese', [160, 5, 26, 4, 1.5], [['6 momos', 150], ['10 momos', 250]], {
+    aliases: ['veg dumplings', 'paneer momos'], diet: 'vegan', rootVeg: true, allergens: ['gluten'], groups: ['refined_grain', 'vegetable'], veg: 0.25, meals: ['snack', 'dinner'], cuisines: ['east_indian', 'north_indian'],
+  }),
+  food('chicken-thukpa', 'Chicken thukpa', 'indo_chinese', [90, 6, 11, 2.5, 1], [['1 bowl', 300]], {
+    aliases: ['thukpa', 'noodle soup'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish', 'refined_grain', 'vegetable'], veg: 0.15, meals: ['lunch', 'dinner'], cuisines: ['east_indian'],
+  }),
+  food('veg-thukpa', 'Veg thukpa', 'indo_chinese', [80, 3, 12, 2, 1], [['1 bowl', 300]], {
+    diet: 'vegan', rootVeg: true, allergens: ['gluten'], groups: ['refined_grain', 'vegetable'], veg: 0.25, meals: ['lunch', 'dinner'], cuisines: ['east_indian'],
+  }),
+  food('chilli-chicken', 'Chilli chicken', 'indo_chinese', [205, 16, 10, 11, 1], [['1 plate', 200], ['1 small bowl', 120]], {
+    aliases: ['chicken chilli', 'chicken manchurian', 'dragon chicken', 'chilli chicken gravy'], diet: 'nonveg', rootVeg: true, allergens: ['soy', 'gluten'], groups: ['meat_fish', 'fried'], veg: 0.1, cost: 2,
+  }),
+  food('chilli-paneer', 'Chilli paneer', 'indo_chinese', [230, 11, 12, 15, 1], [['1 plate', 180]], {
+    aliases: ['paneer chilli'], rootVeg: true, allergens: ['dairy', 'soy', 'gluten'], groups: ['dairy', 'fried'], veg: 0.15, cost: 2,
+  }),
+  food('veg-manchurian', 'Veg / gobi manchurian', 'indo_chinese', [135, 3, 13, 8, 1.5], [['1 bowl', 180]], {
+    aliases: ['gobi manchurian', 'manchurian', 'veg manchurian gravy'], diet: 'vegan', rootVeg: true, allergens: ['gluten', 'soy'], groups: ['vegetable', 'fried'], veg: 0.3,
+  }),
+  food('chicken-fried-rice', 'Chicken fried rice', 'indo_chinese', [180, 8, 24, 6, 1], [['1 plate', 300], ['1 cup', 180]], {
+    aliases: ['chicken rice', 'schezwan chicken fried rice'], diet: 'nonveg', rootVeg: true, allergens: ['egg', 'soy'], groups: ['refined_grain', 'meat_fish'], veg: 0.1, cost: 2,
+  }),
+  food('egg-fried-rice', 'Egg fried rice', 'indo_chinese', [175, 6, 25, 6, 1], [['1 plate', 300], ['1 cup', 180]], {
+    diet: 'egg', rootVeg: true, allergens: ['egg', 'soy'], groups: ['refined_grain', 'egg'], veg: 0.1,
+  }),
+  food('veg-fried-rice', 'Veg fried rice', 'indo_chinese', [165, 3.5, 26, 5, 1.2], [['1 plate', 300], ['1 cup', 180]], {
+    aliases: ['fried rice', 'schezwan fried rice'], diet: 'vegan', rootVeg: true, allergens: ['soy'], groups: ['refined_grain', 'vegetable'], veg: 0.15,
+  }),
+  food('chicken-noodles', 'Chicken hakka noodles', 'indo_chinese', [180, 8, 22, 7, 1.2], [['1 plate', 300]], {
+    aliases: ['chicken chowmein', 'chicken noodles'], diet: 'nonveg', rootVeg: true, allergens: ['gluten', 'soy'], groups: ['refined_grain', 'meat_fish'], veg: 0.1, cost: 2,
+  }),
+  food('veg-noodles', 'Veg hakka noodles', 'indo_chinese', [170, 4, 25, 6, 1.5], [['1 plate', 300]], {
+    aliases: ['chowmein', 'chow mein', 'hakka noodles', 'veg noodles', 'schezwan noodles'], diet: 'vegan', rootVeg: true, allergens: ['gluten', 'soy'], groups: ['refined_grain', 'vegetable'], veg: 0.15,
+  }),
+
+  // ------------------------------------------------------------ Mutton, beef, pork
+  food('mutton-seekh-kebab', 'Mutton seekh kebab', 'meat', [245, 17, 4, 18, 0.5], [['2 kebabs', 100], ['4 kebabs', 200]], {
+    aliases: ['seekh kebab', 'mutton kebab', 'galouti kebab', 'kakori kebab'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], meals: ['lunch', 'dinner', 'snack'], cuisines: ['north_indian'], cost: 3,
+  }),
+  food('shami-kebab', 'Shami kebab', 'meat', [210, 16, 10, 12, 2], [['2 kebabs', 80]], {
+    aliases: ['shami kabab'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish', 'pulse', 'fried'], meals: ['lunch', 'dinner', 'snack'], cuisines: ['north_indian'], cost: 2,
+  }),
+  food('mutton-biryani', 'Mutton biryani', 'rice', [200, 9, 21, 9, 1], [['1 plate', 300], ['1 cup', 160]], {
+    aliases: ['hyderabadi biryani', 'gosht biryani', 'lucknowi biryani', 'kolkata biryani', 'dum biryani'], diet: 'nonveg', rootVeg: true, allergens: ['dairy'], groups: ['refined_grain', 'meat_fish'], homemade: true, oil: true, cost: 3,
+  }),
+  food('nihari', 'Nihari', 'meat', [195, 12, 5, 14, 0.5], [['1 bowl', 200]], {
+    aliases: ['nalli nihari', 'mutton nihari', 'beef nihari'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['north_indian'], cost: 3,
+  }),
+  food('mutton-paya', 'Paya (trotters soup)', 'meat', [95, 8, 2, 6, 0.3], [['1 bowl', 250]], {
+    aliases: ['paya', 'paya soup', 'trotters', 'aattukal soup'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, meals: ['breakfast', 'lunch', 'dinner'], cost: 2,
+  }),
+  food('mutton-sukka', 'Mutton fry / sukka', 'meat', [230, 20, 4, 15, 1], [['1 bowl', 150]], {
+    aliases: ['mutton fry', 'mutton chukka', 'mutton pepper fry', 'bhuna gosht', 'mutton sukha'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cost: 3,
+  }),
+  food('keema-pav', 'Keema pav', 'meat', [230, 11, 22, 11, 2], [['1 plate (keema + 2 pav)', 250]], {
+    aliases: ['kheema pav'], diet: 'nonveg', rootVeg: true, allergens: ['gluten'], groups: ['meat_fish', 'refined_grain'], veg: 0.1, meals: ['breakfast', 'lunch', 'dinner'], cuisines: ['west_indian'], cost: 2,
+  }),
+  food('beef-fry', 'Beef fry (Kerala style)', 'meat', [230, 22, 4, 14, 1], [['1 bowl', 150]], {
+    aliases: ['kerala beef fry', 'beef ularthiyathu', 'beef roast', 'beef dry fry'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian', 'east_indian'], cost: 2,
+  }),
+  food('beef-curry', 'Beef curry', 'meat', [170, 16, 4, 10, 1], [['1 bowl', 180]], {
+    aliases: ['beef masala', 'beef gravy'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian', 'east_indian'], cost: 2,
+  }),
+  food('pork-vindaloo', 'Pork vindaloo', 'meat', [205, 14, 4, 15, 0.8], [['1 bowl', 180]], {
+    aliases: ['vindaloo', 'goan pork', 'pork sorpotel'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['west_indian'], cost: 2,
+  }),
+  food('pork-curry', 'Pork curry / fry', 'meat', [200, 15, 3, 14, 1], [['1 bowl', 180]], {
+    aliases: ['pork with bamboo shoot', 'naga pork', 'pork fry', 'smoked pork', 'pork bhuna'], diet: 'nonveg', rootVeg: true, groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian'], cost: 2,
+  }),
+
+  // ------------------------------------------------------------ Fish & seafood
+  food('goan-fish-curry', 'Goan fish curry', 'fish', [140, 11, 4, 9, 1], [['1 bowl', 180]], {
+    aliases: ['xitt kodi', 'goan curry', 'fish curry rice'], diet: 'nonveg', rootVeg: true, allergens: ['fish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['west_indian'], cost: 2,
+  }),
+  food('fish-moilee', 'Kerala fish curry / moilee', 'fish', [150, 11, 4, 10, 0.8], [['1 bowl', 180]], {
+    aliases: ['meen moilee', 'kerala fish curry', 'meen curry', 'fish molee', 'meen kuzhambu', 'chepala pulusu'], diet: 'nonveg', rootVeg: true, allergens: ['fish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian'], cost: 2,
+  }),
+  food('hilsa-curry', 'Ilish (hilsa) curry', 'fish', [210, 16, 3, 15, 0.3], [['1 piece with gravy', 150]], {
+    aliases: ['ilish', 'ilish bhapa', 'shorshe ilish', 'hilsa', 'ilish macher jhol'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['east_indian'], cost: 3,
+  }),
+  food('fish-tikka', 'Fish tikka', 'fish', [160, 20, 4, 7, 0.5], [['6 pieces', 150]], {
+    aliases: ['tandoori fish', 'fish kebab', 'amritsari fish'], diet: 'nonveg', rootVeg: true, allergens: ['fish', 'dairy'], groups: ['meat_fish'], meals: ['lunch', 'dinner', 'snack'], cost: 3,
+  }),
+  food('fish-cutlet', 'Fish cutlet / chop', 'fish', [200, 11, 15, 11, 1], [['2 cutlets', 120]], {
+    aliases: ['fish chop', 'macher chop', 'fish fingers'], diet: 'nonveg', rootVeg: true, allergens: ['fish', 'gluten'], groups: ['meat_fish', 'fried'], meals: ['snack', 'dinner'], cuisines: ['east_indian', 'south_indian'], cost: 2,
+  }),
+  food('prawns-fry', 'Prawns fry / roast', 'fish', [185, 19, 5, 10, 0.5], [['1 bowl', 120]], {
+    aliases: ['prawn masala', 'jhinga fry', 'chemmeen roast', 'prawns roast', 'kolambi fry', 'chingri bhaja'], diet: 'nonveg', rootVeg: true, allergens: ['shellfish'], groups: ['meat_fish'], oil: true, cuisines: ['south_indian', 'west_indian', 'east_indian'], cost: 3,
+  }),
+  food('crab-curry', 'Crab curry', 'fish', [125, 12, 4, 7, 0.5], [['1 bowl', 180]], {
+    aliases: ['crab masala', 'njandu curry', 'kekda curry'], diet: 'nonveg', rootVeg: true, allergens: ['shellfish'], groups: ['meat_fish'], homemade: true, oil: true, cuisines: ['south_indian', 'west_indian', 'east_indian'], cost: 3,
+  }),
+  food('dry-fish', 'Dry fish fry', 'fish', [295, 45, 2, 12, 0], [['1 small bowl', 50]], {
+    aliases: ['sukat', 'karuvadu', 'sukhi machli', 'bombil fry', 'dried fish', 'shutki'], diet: 'nonveg', allergens: ['fish'], groups: ['meat_fish'], oil: true, cuisines: ['south_indian', 'west_indian', 'east_indian'],
+  }),
+  food('fish-biryani', 'Fish biryani', 'rice', [175, 9, 21, 6, 1], [['1 plate', 300]], {
+    aliases: ['meen biryani'], diet: 'nonveg', rootVeg: true, allergens: ['fish', 'dairy'], groups: ['refined_grain', 'meat_fish'], homemade: true, oil: true, cost: 3,
+  }),
+  food('prawn-biryani', 'Prawn biryani', 'rice', [180, 9, 21, 6.5, 1], [['1 plate', 300]], {
+    aliases: ['chemmeen biryani', 'prawns pulao'], diet: 'nonveg', rootVeg: true, allergens: ['shellfish', 'dairy'], groups: ['refined_grain', 'meat_fish'], homemade: true, oil: true, cost: 3,
+  }),
+
+  // ------------------------------------------------------------ Eggs
+  food('egg-biryani', 'Egg biryani', 'rice', [180, 6, 24, 7, 1], [['1 plate', 300], ['1 cup', 160]], {
+    aliases: ['anda biryani', 'muttai biryani'], diet: 'egg', rootVeg: true, allergens: ['egg', 'dairy'], groups: ['refined_grain', 'egg'], homemade: true, oil: true,
+  }),
+  food('fried-egg', 'Fried egg / half fry', 'eggs', [195, 13.6, 0.8, 15, 0], [['1 egg', 46], ['2 eggs', 92]], {
+    aliases: ['half fry', 'bullseye', 'sunny side up', 'egg fry'], diet: 'egg', allergens: ['egg'], groups: ['egg'], oil: true, meals: ['breakfast', 'snack', 'lunch', 'dinner'],
+  }),
+  food('egg-dosa', 'Egg dosa', 'eggs', [185, 7, 24, 7, 1], [['1 dosa', 120]], {
+    aliases: ['muttai dosa', 'egg dose', 'anda dosa'], diet: 'egg', allergens: ['egg'], groups: ['egg', 'refined_grain', 'pulse'], oil: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('egg-paratha', 'Egg paratha', 'eggs', [265, 9, 30, 12, 2], [['1 paratha', 120]], {
+    aliases: ['anda paratha'], diet: 'egg', rootVeg: true, allergens: ['egg', 'gluten'], groups: ['egg', 'whole_grain'], homemade: true, oil: true, meals: ['breakfast', 'lunch', 'dinner'], cuisines: ['north_indian'],
+  }),
+  food('mughlai-paratha', 'Mughlai paratha', 'eggs', [295, 10, 28, 16, 1.5], [['1 piece', 150]], {
+    aliases: ['moglai porota', 'egg stuffed paratha'], diet: 'egg', rootVeg: true, allergens: ['egg', 'gluten'], groups: ['egg', 'refined_grain', 'fried'], meals: ['snack', 'dinner', 'breakfast'], cuisines: ['east_indian'],
+  }),
+  food('egg-sandwich', 'Egg sandwich', 'eggs', [215, 10, 24, 9, 1.5], [['1 sandwich', 150]], {
+    aliases: ['egg mayo sandwich', 'bread omelette'], diet: 'egg', allergens: ['egg', 'gluten'], groups: ['egg', 'refined_grain'], meals: ['breakfast', 'snack'], cuisines: ['continental', ...ALL_INDIAN],
+  }),
+
+  // ------------------------------------------------------------ Regional vegetarian
+  food('chole-bhature', 'Chole bhature', 'breakfast', [265, 7, 30, 13, 3], [['1 plate (2 bhature + chole)', 350]], {
+    aliases: ['chole bhature', 'bhatura', 'chana bhatura'], rootVeg: true, allergens: ['gluten', 'dairy'], groups: ['refined_grain', 'pulse', 'fried'], meals: ['breakfast', 'lunch'], cuisines: ['north_indian'],
+  }),
+  food('aloo-tikki', 'Aloo tikki', 'snacks', [190, 3, 25, 9, 2.5], [['2 tikkis', 120]], {
+    aliases: ['tikki chaat', 'aloo tikki chaat', 'ragda tikki'], diet: 'vegan', rootVeg: true, groups: ['fried'], meals: ['snack'], cuisines: ['north_indian'],
+  }),
+  food('dabeli', 'Dabeli', 'snacks', [240, 5, 35, 9, 3], [['1 dabeli', 120]], {
+    aliases: ['kutchi dabeli'], rootVeg: true, allergens: ['gluten', 'peanut'], groups: ['refined_grain'], meals: ['snack'], cuisines: ['west_indian'],
+  }),
+  food('ragda-pattice', 'Ragda pattice', 'snacks', [170, 5, 22, 7, 3.5], [['1 plate', 200]], {
+    aliases: ['ragda patties'], diet: 'vegan', rootVeg: true, groups: ['pulse', 'fried'], meals: ['snack'], cuisines: ['west_indian'],
+  }),
+  food('chana-chaat', 'Chana chaat', 'snacks', [135, 7, 20, 3, 5], [['1 bowl', 150]], {
+    aliases: ['chole chaat', 'kala chana chaat'], diet: 'vegan', rootVeg: true, groups: ['pulse', 'vegetable'], veg: 0.2, meals: ['snack', 'breakfast'],
+  }),
+  food('litti-chokha', 'Litti chokha', 'breads', [265, 8, 38, 9, 6], [['2 litti with chokha', 250]], {
+    aliases: ['litti', 'baati chokha'], rootVeg: true, allergens: ['gluten', 'dairy'], groups: ['whole_grain', 'pulse', 'vegetable'], veg: 0.25, homemade: true, cuisines: ['east_indian'],
+  }),
+  food('dal-baati', 'Dal baati', 'breads', [295, 8, 35, 14, 4], [['1 plate (2 baati + dal)', 300]], {
+    aliases: ['dal bati', 'dal baati churma', 'baati'], rootVeg: true, allergens: ['gluten', 'dairy'], groups: ['whole_grain', 'pulse'], homemade: true, oil: true, cuisines: ['west_indian', 'north_indian'],
+  }),
+  food('sattu-paratha', 'Sattu paratha', 'breads', [290, 10, 40, 10, 6], [['1 paratha', 100]], {
+    aliases: ['sattu ka paratha'], rootVeg: true, allergens: ['gluten'], groups: ['whole_grain', 'pulse'], homemade: true, oil: true, meals: ['breakfast', 'lunch', 'dinner'], cuisines: ['east_indian', 'north_indian'],
+  }),
+  food('thalipeeth', 'Thalipeeth', 'breads', [265, 9, 40, 8, 6], [['1 thalipeeth', 100]], {
+    aliases: ['thalipith', 'bhajani thalipeeth'], diet: 'vegan', rootVeg: true, groups: ['whole_grain', 'pulse'], homemade: true, oil: true, meals: ['breakfast', 'dinner'], cuisines: ['west_indian'],
+  }),
+  food('akki-roti', 'Akki roti', 'breads', [220, 3.5, 40, 5, 2], [['1 roti', 80]], {
+    aliases: ['rice roti', 'rice bhakri'], diet: 'vegan', rootVeg: true, groups: ['refined_grain'], veg: 0.1, homemade: true, oil: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('ladi-pav', 'Pav (bread roll)', 'breads', [280, 9, 50, 4.5, 2.5], [['1 pav', 40], ['2 pav', 80]], {
+    aliases: ['pav', 'ladi pav', 'bun', 'pao'], allergens: ['gluten'], groups: ['refined_grain'], meals: ['breakfast', 'snack', 'lunch', 'dinner'], cuisines: ['west_indian'],
+  }),
+  food('kadala-curry', 'Kadala curry', 'dal', [145, 7, 16, 6, 5], [['1 bowl', 160]], {
+    aliases: ['black chana curry', 'kala chana curry', 'kadala', 'puttu kadala'], diet: 'vegan', rootVeg: true, groups: ['pulse'], homemade: true, oil: true, meals: ['breakfast', 'lunch', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('zunka', 'Zunka / pithla', 'dal', [150, 8, 14, 7, 4], [['1 bowl', 150]], {
+    aliases: ['pithla', 'pitla', 'zunka bhakar', 'jhunka'], diet: 'vegan', rootVeg: true, groups: ['pulse'], homemade: true, oil: true, cuisines: ['west_indian'],
+  }),
+  food('undhiyu', 'Undhiyu', 'sabzi', [150, 4, 14, 9, 4], [['1 bowl', 150]], {
+    aliases: ['oondhiyu'], diet: 'vegan', rootVeg: true, groups: ['vegetable'], veg: 0.6, homemade: true, oil: true, cuisines: ['west_indian'],
+  }),
+  food('sev-tameta', 'Sev tameta nu shaak', 'sabzi', [155, 4, 12, 10, 2.5], [['1 bowl', 150]], {
+    aliases: ['sev tamatar', 'sev tamatar sabzi'], diet: 'vegan', rootVeg: true, groups: ['vegetable'], veg: 0.5, homemade: true, oil: true, cuisines: ['west_indian'],
+  }),
+  food('veg-stew', 'Vegetable stew (Kerala)', 'sabzi', [95, 2, 8, 6, 2], [['1 bowl', 180]], {
+    aliases: ['kerala stew', 'vegetable ishtu', 'appam stew'], diet: 'vegan', rootVeg: true, groups: ['vegetable'], veg: 0.55, homemade: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('puttu', 'Puttu', 'breakfast', [190, 4, 40, 2, 2.5], [['1 piece', 120]], {
+    aliases: ['rice puttu'], diet: 'vegan', groups: ['refined_grain'], meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('neer-dosa', 'Neer dosa', 'breakfast', [130, 2.5, 25, 2.5, 0.6], [['2 dosas', 100], ['4 dosas', 200]], {
+    diet: 'vegan', groups: ['refined_grain'], meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('rava-dosa', 'Rava dosa', 'breakfast', [200, 4, 28, 8, 1], [['1 dosa', 100]], {
+    aliases: ['onion rava dosa'], diet: 'vegan', rootVeg: true, allergens: ['gluten'], groups: ['refined_grain'], oil: true, meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('set-dosa', 'Set dosa', 'breakfast', [170, 4, 30, 4, 1.2], [['3 dosas', 150]], {
+    aliases: ['sponge dosa'], diet: 'vegan', groups: ['refined_grain', 'pulse'], meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('idiyappam', 'Idiyappam', 'breakfast', [130, 2, 30, 0.5, 0.8], [['3 idiyappam', 120]], {
+    aliases: ['string hoppers', 'sevai', 'nool puttu'], diet: 'vegan', groups: ['refined_grain'], meals: ['breakfast', 'dinner'], cuisines: ['south_indian'],
+  }),
+  food('vada-sambar', 'Vada sambar', 'breakfast', [155, 5, 18, 7, 2.5], [['2 vadas with sambar', 250]], {
+    aliases: ['sambar vada', 'medu vada sambar'], diet: 'vegan', rootVeg: true, groups: ['pulse', 'fried', 'vegetable'], veg: 0.1, meals: ['breakfast', 'snack'], cuisines: ['south_indian'],
+  }),
+  food('handvo', 'Handvo', 'breakfast', [210, 7, 25, 9, 3], [['2 pieces', 120]], {
+    allergens: ['dairy'], groups: ['pulse', 'refined_grain'], veg: 0.1, homemade: true, meals: ['breakfast', 'snack'], cuisines: ['west_indian'],
+  }),
+  food('khandvi', 'Khandvi', 'snacks', [160, 7, 15, 8, 1.5], [['6 pieces', 100]], {
+    aliases: ['patuli', 'suralichi vadi'], allergens: ['dairy'], groups: ['pulse'], homemade: true, meals: ['snack', 'breakfast'], cuisines: ['west_indian'],
+  }),
+  food('fafda', 'Fafda', 'snacks', [500, 12, 50, 28, 5], [['50 g', 50]], {
+    aliases: ['fafda jalebi'], diet: 'vegan', groups: ['pulse', 'fried'], meals: ['breakfast', 'snack'], cuisines: ['west_indian'],
+  }),
+  food('sol-kadhi', 'Sol kadhi', 'beverages', [75, 1, 4, 6, 0.5], [['1 glass (200 ml)', 200]], {
+    aliases: ['kokum kadhi'], diet: 'vegan', unit: 'ml', meals: ['lunch', 'dinner', 'beverage'], cuisines: ['west_indian'],
+  }),
+
+  // ------------------------------------------------------------ Regional sweets
+  food('modak', 'Modak / kozhukattai', 'sweets', [225, 3, 40, 6, 2], [['2 pieces', 100]], {
+    aliases: ['ukadiche modak', 'kozhukattai', 'kudumu'], allergens: ['dairy'], groups: ['sweet'], homemade: true, meals: ['snack'], cuisines: ['west_indian', 'south_indian'],
+  }),
+  food('ras-malai', 'Ras malai', 'sweets', [195, 7, 22, 9, 0], [['2 pieces', 100]], {
+    aliases: ['rasmalai'], allergens: ['dairy', 'tree_nut'], groups: ['sweet', 'dairy'], meals: ['snack', 'dinner'], cuisines: ['east_indian', 'north_indian'],
+  }),
+  food('mishti-doi', 'Mishti doi', 'sweets', [120, 4, 18, 3.5, 0], [['1 cup', 100]], {
+    aliases: ['sweet curd', 'meetha dahi'], allergens: ['dairy'], groups: ['sweet', 'dairy'], meals: ['snack', 'lunch', 'dinner'], cuisines: ['east_indian'],
+  }),
+  food('sandesh', 'Sandesh', 'sweets', [280, 10, 40, 9, 0], [['2 pieces', 50]], {
+    aliases: ['sondesh'], allergens: ['dairy'], groups: ['sweet', 'dairy'], meals: ['snack'], cuisines: ['east_indian'],
+  }),
+  food('puran-poli', 'Puran poli', 'sweets', [300, 7, 50, 8, 4], [['1 poli', 80]], {
+    aliases: ['obbattu', 'holige', 'bobbatlu'], allergens: ['gluten', 'dairy'], groups: ['sweet', 'pulse'], homemade: true, meals: ['lunch', 'snack'], cuisines: ['west_indian', 'south_indian'],
+  }),
 ];
 
 export const FOOD_CATEGORY_LABELS: Record<FoodCategory, string> = {
@@ -726,5 +1011,6 @@ export const FOOD_CATEGORY_LABELS: Record<FoodCategory, string> = {
   sweets: 'Sweets',
   beverages: 'Drinks',
   salad: 'Salads & raw veg',
+  indo_chinese: 'Indo-Chinese & momos',
   extras: 'Sides & extras',
 };

@@ -1,4 +1,5 @@
-import type { ActivityLevel, ActivityType, Allergen, Cuisine, DietType, Equipment, FitnessLevel, Goal, Intensity, MealType, Sex } from '@/engine/types';
+import { ACTIVITIES } from '@/engine/activity/catalog';
+import type { ActivityLevel, ActivityType, Allergen, Cuisine, DietType, Goal, Intensity, MealType, Sex } from '@/engine/types';
 
 export const SEX_OPTIONS: { value: Sex; label: string }[] = [
   { value: 'female', label: 'Female' },
@@ -51,38 +52,13 @@ export const CUISINES: { value: Cuisine; label: string }[] = [
   { value: 'continental', label: 'Continental' },
 ];
 
-export const ACTIVITY_OPTIONS: { value: ActivityType; label: string }[] = [
-  { value: 'walking', label: 'Walking' },
-  { value: 'running', label: 'Running' },
-  { value: 'cycling', label: 'Cycling' },
-  { value: 'basketball', label: 'Basketball' },
-  { value: 'football', label: 'Football' },
-  { value: 'cricket', label: 'Cricket' },
-  { value: 'badminton', label: 'Badminton' },
-  { value: 'swimming', label: 'Swimming' },
-  { value: 'gym', label: 'Gym' },
-  { value: 'bodyweight', label: 'Bodyweight workouts' },
-  { value: 'yoga', label: 'Yoga' },
-  { value: 'stretching', label: 'Stretching' },
-  { value: 'dance', label: 'Dance' },
-  { value: 'other_sport', label: 'Other sports' },
+const ACTIVITY_ORDER: ActivityType[] = [
+  'walking', 'running', 'cycling', 'gym', 'bodyweight', 'hiit', 'yoga', 'stretching', 'swimming', 'skipping', 'stairs', 'hiking',
+  'aerobics', 'dance', 'cricket', 'football', 'badminton', 'basketball', 'tennis', 'table_tennis', 'volleyball', 'kabaddi',
+  'martial_arts', 'household', 'other_sport',
 ];
 
-export const EQUIPMENT: { value: Equipment; label: string }[] = [
-  { value: 'none', label: 'No equipment' },
-  { value: 'yoga_mat', label: 'Yoga mat' },
-  { value: 'skipping_rope', label: 'Skipping rope' },
-  { value: 'resistance_band', label: 'Resistance band' },
-  { value: 'dumbbells', label: 'Dumbbells' },
-  { value: 'gym_access', label: 'Gym access' },
-  { value: 'bicycle', label: 'Bicycle' },
-];
-
-export const FITNESS_LEVELS: { value: FitnessLevel; label: string; hint: string }[] = [
-  { value: 'beginner', label: 'Beginner', hint: 'New to exercise or getting back into it' },
-  { value: 'intermediate', label: 'Intermediate', hint: 'Exercise regularly' },
-  { value: 'advanced', label: 'Advanced', hint: 'Train often and confidently' },
-];
+export const ACTIVITY_OPTIONS: { value: ActivityType; label: string }[] = ACTIVITY_ORDER.map((value) => ({ value, label: ACTIVITIES[value].label }));
 
 export const INTENSITIES: { value: Intensity; label: string; hint: string }[] = [
   { value: 'light', label: 'Light', hint: 'Easy, can sing' },

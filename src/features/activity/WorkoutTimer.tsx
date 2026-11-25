@@ -24,7 +24,7 @@ function beep(freq = 880) {
 }
 
 export function WorkoutTimer({ onLog, presetMinutes }: { onLog: (minutes: number) => void; presetMinutes?: { minutes: number; key: number } }) {
-  const [mode, setMode] = useState<'countdown' | 'stopwatch' | 'interval'>('countdown');
+  const [mode, setMode] = useState<'countdown' | 'stopwatch' | 'interval'>('stopwatch');
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0); // seconds
   const [countdownMin, setCountdownMin] = useState(20);
@@ -106,7 +106,7 @@ export function WorkoutTimer({ onLog, presetMinutes }: { onLog: (minutes: number
 
   return (
     <Card aria-label="Workout timer">
-      <CardHeader icon={<Timer className="h-[18px] w-[18px]" strokeWidth={1.75} />} eyebrow="Timer" title="Workout timer" />
+      <CardHeader icon={<Timer className="h-[18px] w-[18px]" strokeWidth={1.75} />} eyebrow="Timer" title="Time your session" />
       <Segmented
         label="Timer mode"
         size="sm"
@@ -116,9 +116,9 @@ export function WorkoutTimer({ onLog, presetMinutes }: { onLog: (minutes: number
           reset();
         }}
         options={[
+          { value: 'stopwatch', label: 'Stopwatch' },
           { value: 'countdown', label: 'Countdown' },
           { value: 'interval', label: 'Intervals' },
-          { value: 'stopwatch', label: 'Stopwatch' },
         ]}
       />
       <div className="mt-5 flex flex-col items-center">

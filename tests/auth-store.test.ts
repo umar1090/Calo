@@ -156,7 +156,7 @@ describe('user data store', () => {
     expect(() => store.updateEntry('missing', { quantity: 1 })).toThrow(/not found/);
   });
 
-  it('tracks water, check-ins, habits, plan checks and exercise', async () => {
+  it('tracks water, check-ins, habits and exercise', async () => {
     const { store } = make();
     await store.addWater(D, 250);
     await store.addWater(D, 250);
@@ -168,12 +168,13 @@ describe('user data store', () => {
     await store.toggleHabit(D, 'screen');
     await store.toggleHabit(D, 'screen');
     expect(store.getSnapshot().habitLogs).toEqual([]);
-    await store.togglePlanCheck(D, 'warmup');
-    expect(store.getSnapshot().planChecks[D]).toEqual(['warmup']);
     const log = await store.addExercise({ date: D, activity: 'bodyweight', minutes: 25, intensity: 'moderate' });
     expect(log.strength).toBe(true);
+    const walk = await store.addExercise({ date: D, activity: 'walking', minutes: 45, intensity: 'moderate', distanceKm: 4.2, steps: 5600 });
+    expect(walk.distanceKm).toBe(4.2);
+    expect(() => store.addExercise({ date: D, activity: 'walking', minutes: 30, intensity: 'light', distanceKm: -1 })).toThrow(/Distance/);
     await store.updateExercise(log.id, { minutes: 30 });
-    expect(store.getSnapshot().exercise[0].minutes).toBe(30);
+    expect(store.getSnapshot().exercise.find((x) => x.id === log.id)?.minutes).toBe(30);
     expect(() => store.addExercise({ date: D, activity: 'walking', minutes: 0, intensity: 'light' })).toThrow(/Duration/);
   });
 

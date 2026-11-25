@@ -148,6 +148,8 @@ create table public.exercise_logs (
   intensity public.intensity not null,
   strength boolean not null default false,
   bone_loading boolean not null default false,
+  distance_km numeric(6, 2) check (distance_km > 0 and distance_km <= 300),
+  steps integer check (steps between 1 and 100000),
   notes text check (char_length(notes) <= 200),
   logged_at timestamptz not null default now()
 );

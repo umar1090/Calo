@@ -6,7 +6,7 @@ import { FOODS } from '@/data/foods';
 import { searchFoods, findFoodMentions } from '@/data/foodSearch';
 import { defaultPortion, portionNutrients, suitableFor } from '@/engine/nutrition/foodMath';
 import { getSafetyRules } from '@/engine/safety/policy';
-import { adult, assistantContext, child, entry, teen } from './fixtures';
+import { adult, assistantContext, child, entry, exercise, teen } from './fixtures';
 
 const D = '2026-11-20';
 const evening = new Date(`${D}T19:30:00`);
@@ -67,9 +67,17 @@ describe('assistant replies use the profile and logs', () => {
     expect(r.text).toMatch(/Water: 0\.5 L/);
   });
 
-  it('gives a workout plan', () => {
-    const r = respond(assistantContext(teen, { date: D, now: evening }), 'What workout should I do today?');
-    expect(r.text).toMatch(/60 minutes/);
+  it('summarises logged activity instead of prescribing workouts', () => {
+    const none = respond(assistantContext(teen, { date: D, now: evening }), 'What workout should I do today?');
+    expect(none.intent).toBe('workout');
+    expect(none.text).toMatch(/haven't logged any activity today/);
+    const logs = [exercise(D, 50, 'vigorous', 'football')];
+    const adultReply = respond(assistantContext(adult, { date: D, now: evening, exercises: logs, history: logs }), 'How active was I this week?');
+    expect(adultReply.text).toMatch(/Football: 50 min, vigorous, about \d+ kcal/);
+    expect(adultReply.text).toMatch(/today's estimates went up/);
+    const teenReply = respond(assistantContext(teen, { date: D, now: evening, exercises: logs, history: logs }), 'How active was I this week?');
+    expect(teenReply.text).toMatch(/Football: 50 min/);
+    expect(teenReply.text).not.toMatch(/kcal/);
   });
 
   it('answers food questions without moralising', () => {
@@ -123,7 +131,7 @@ describe('food database', () => {
     const ids = new Set(FOODS.map((f) => f.id));
     expect(ids.size).toBe(FOODS.length);
     for (const f of FOODS) expect(f.portions.some((p) => p.id === f.defaultPortionId), f.id).toBe(true);
-    expect(FOODS.length).toBeGreaterThanOrEqual(150);
+    expect(FOODS.length).toBeGreaterThanOrEqual(270);
   });
 
   it('keeps calories roughly consistent with macronutrients', () => {
@@ -134,7 +142,10 @@ describe('food database', () => {
   });
 
   it('covers the Indian foods and portions the app promises', () => {
-    const required = ['roti', 'chapati', 'paratha', 'rice', 'dal', 'rajma', 'chole', 'paneer', 'sabzi', 'dhokla', 'poha', 'upma', 'idli', 'dosa', 'khichdi', 'curd', 'milk', 'buttermilk', 'egg', 'chicken', 'fish', 'banana', 'almonds', 'samosa', 'ladoo'];
+    const required = ['roti', 'chapati', 'paratha', 'rice', 'dal', 'rajma', 'chole', 'paneer', 'sabzi', 'dhokla', 'poha', 'upma', 'idli', 'dosa', 'khichdi', 'curd', 'milk', 'buttermilk', 'egg', 'chicken', 'fish', 'banana', 'almonds', 'samosa', 'ladoo',
+      'kebab', 'momos', 'biryani', 'prawn', 'crab', 'keema', 'haleem', 'mutton', 'beef', 'pork', 'egg roll', 'fried rice', 'noodles', 'litti', 'puttu', 'vada pav'];
+    const nonVeg = FOODS.filter((f) => f.diet === 'nonveg' || f.diet === 'egg');
+    expect(nonVeg.length).toBeGreaterThanOrEqual(65);
     for (const q of required) expect(searchFoods(FOODS, q).length, q).toBeGreaterThan(0);
     const labels = FOODS.flatMap((f) => f.portions.map((p) => p.label));
     for (const l of ['1 medium roti', '1 bowl dal', '1 cup cooked', '100 g', '1 glass (250 ml)']) expect(labels).toContain(l);
@@ -146,6 +157,11 @@ describe('food database', () => {
     expect(searchFoods(FOODS, 'panner')[0].id).toBe('paneer');
     expect(searchFoods(FOODS, 'golgappa')[0].id).toBe('pani-puri');
     expect(findFoodMentions(FOODS, 'how much protein in paneer?')[0].id).toBe('paneer');
+    expect(searchFoods(FOODS, 'chicken 65')[0].id).toBe('chicken-65');
+    expect(searchFoods(FOODS, 'shawarma')[0].id).toBe('chicken-shawarma');
+    expect(searchFoods(FOODS, 'ilish')[0].id).toBe('hilsa-curry');
+    expect(searchFoods(FOODS, 'chowmein')[0].id).toBe('veg-noodles');
+    expect(searchFoods(FOODS, 'mutton biryani')[0].id).toBe('mutton-biryani');
   });
 
   it('adjusts homemade dishes for oil level', () => {

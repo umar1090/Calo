@@ -21,7 +21,8 @@ export const allergenSchema = z.enum(['dairy', 'gluten', 'peanut', 'tree_nut', '
 export const cuisineSchema = z.enum(['north_indian', 'south_indian', 'west_indian', 'east_indian', 'continental']);
 export const mealTypeSchema = z.enum(['breakfast', 'lunch', 'dinner', 'snack', 'beverage']);
 export const activityTypeSchema = z.enum([
-  'walking', 'running', 'cycling', 'basketball', 'football', 'cricket', 'badminton', 'swimming', 'gym', 'bodyweight', 'yoga', 'stretching', 'dance', 'other_sport',
+  'walking', 'running', 'cycling', 'basketball', 'football', 'cricket', 'badminton', 'swimming', 'gym', 'bodyweight', 'yoga', 'stretching', 'dance',
+  'hiit', 'skipping', 'hiking', 'stairs', 'tennis', 'table_tennis', 'volleyball', 'kabaddi', 'aerobics', 'martial_arts', 'household', 'other_sport',
 ]);
 export const equipmentSchema = z.enum(['none', 'dumbbells', 'resistance_band', 'gym_access', 'bicycle', 'yoga_mat', 'skipping_rope']);
 export const intensitySchema = z.enum(['light', 'moderate', 'vigorous']);
@@ -86,6 +87,8 @@ export const exerciseSchema = z.object({
   minutes: num(1, 600, 'Duration'),
   intensity: intensitySchema,
   notes: z.string().max(200).optional(),
+  distanceKm: num(0.01, 300, 'Distance').optional(),
+  steps: z.number().int('Steps must be a whole number').min(1, 'Steps must be at least 1').max(100000, 'Steps must be at most 100,000').optional(),
   strength: z.boolean(),
   boneLoading: z.boolean(),
   loggedAt: isoTime,

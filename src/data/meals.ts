@@ -49,6 +49,16 @@ export const MEAL_COMBOS: MealCombo[] = [
   { id: 'm-lobia', name: 'Lobia, bajra roti & lauki sabzi', meal: ['lunch', 'dinner'], items: [{ foodId: 'lobia', qty: 1 }, { foodId: 'bajra-roti', qty: 2 }, { foodId: 'lauki', qty: 1 }] },
   { id: 'm-moong-lauki', name: 'Moong dal, roti & lauki sabzi', meal: ['lunch', 'dinner'], items: [{ foodId: 'moong-dal', qty: 1 }, { foodId: 'roti', qty: 2 }, { foodId: 'lauki', qty: 1 }] },
 
+  { id: 'm-chicken-fry-rasam', name: 'Chicken fry, rice & rasam', meal: ['lunch', 'dinner'], items: [{ foodId: 'chicken-fry', qty: 1 }, { foodId: 'rice', qty: 1 }, { foodId: 'rasam', qty: 1 }, { foodId: 'cabbage-sabzi', qty: 1 }] },
+  { id: 'm-mutton-roti', name: 'Mutton curry, roti & salad', meal: ['lunch', 'dinner'], items: [{ foodId: 'mutton-curry', qty: 1 }, { foodId: 'roti', qty: 2 }, { foodId: 'green-salad', qty: 1 }] },
+  { id: 'm-kebab-roti', name: 'Seekh kebab with roti, raita & salad', meal: ['lunch', 'dinner'], items: [{ foodId: 'chicken-seekh-kebab', qty: 1 }, { foodId: 'roti', qty: 2 }, { foodId: 'raita', qty: 1 }, { foodId: 'green-salad', qty: 1 }] },
+  { id: 'm-moilee-appam', name: 'Fish moilee with appam', meal: ['lunch', 'dinner'], items: [{ foodId: 'fish-moilee', qty: 1 }, { foodId: 'appam', qty: 1, portionId: '2-appams' }, { foodId: 'beans-poriyal', qty: 1 }] },
+  { id: 'm-chicken-stew-appam', name: 'Chicken stew with appam', meal: ['breakfast', 'dinner'], items: [{ foodId: 'chicken-stew', qty: 1 }, { foodId: 'appam', qty: 1, portionId: '2-appams' }] },
+  { id: 'm-fish-curry-roti', name: 'Fish curry, roti & sabzi', meal: ['lunch', 'dinner'], items: [{ foodId: 'fish-curry', qty: 1 }, { foodId: 'roti', qty: 2 }, { foodId: 'lauki', qty: 1 }] },
+  { id: 'm-egg-bhurji-roti', name: 'Egg bhurji with roti & salad', meal: ['breakfast', 'dinner'], items: [{ foodId: 'egg-bhurji', qty: 1 }, { foodId: 'roti', qty: 2 }, { foodId: 'green-salad', qty: 1 }] },
+  { id: 'b-egg-dosa', name: 'Egg dosa with sambar', meal: ['breakfast'], items: [{ foodId: 'egg-dosa', qty: 2 }, { foodId: 'sambar', qty: 1 }] },
+  { id: 'b-kadala-puttu', name: 'Puttu with kadala curry', meal: ['breakfast'], items: [{ foodId: 'puttu', qty: 1 }, { foodId: 'kadala-curry', qty: 1 }] },
+
   // Snacks
   { id: 's-chana-fruit', name: 'Roasted chana & a guava', meal: ['snack'], items: [{ foodId: 'roasted-chana', qty: 1 }, { foodId: 'guava', qty: 1 }] },
   { id: 's-curd-fruit', name: 'Curd with fruit', meal: ['snack'], items: [{ foodId: 'curd', qty: 1 }, { foodId: 'papaya', qty: 1 }] },

@@ -13,7 +13,7 @@ const STEPS = [
   { title: 'How active are you?', subtitle: 'Think about a typical week, including work, school and sport.' },
   { title: 'What are your goals?', subtitle: 'Choose all that apply.' },
   { title: 'Food preferences', subtitle: 'So suggestions fit your kitchen.' },
-  { title: 'Movement', subtitle: 'We use this to build daily activity plans.' },
+  { title: 'Your activities', subtitle: 'Pick the ones you do most, for quick logging.' },
   { title: 'Your estimates', subtitle: 'Starting points, not rules. You can change your profile anytime.' },
 ];
 

@@ -2,7 +2,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import type { AssistantContext } from '@/engine/assistant/assistant';
 import { analyzeDay } from '@/engine/analysis/daily';
 import { recommendFoods } from '@/engine/recommendations/foodRecs';
-import { generateDailyPlan } from '@/engine/activity/engine';
+import { calcActivity, weeklyActivity } from '@/engine/activity/engine';
+import { ACTIVITIES } from '@/engine/activity/catalog';
 import type { ChatMessage } from './store/schema';
 
 /**
@@ -19,6 +20,7 @@ const SYSTEM_RULES = `You are the NutriTrack coach inside a nutrition and fitnes
 
 How to help:
 - Base every answer on the user's profile and logs given in the context block. Refer to what they actually ate or did.
+- The user logs their own activity; do not give workout plans or tell them what exercise to do. Comment on what they logged and how it affects their food and water needs.
 - Suggest affordable, everyday Indian household foods (dal, roti, rice, sabzi, curd, paneer, eggs, chana, sprouts, seasonal fruit). Respect their diet type and allergies strictly.
 - Prefer food over supplements. Do not recommend protein powders, fat burners or other supplements.
 - Keep replies short and practical: 2-6 sentences or a few bullet points. Use "- " for bullets and **bold** sparingly. No headings, no tables.
@@ -35,7 +37,7 @@ export function buildContext(ctx: AssistantContext): string {
   const rules = ctx.targets.rules;
   const youth = rules.ageGroup === 'child' || rules.ageGroup === 'teen';
   const days = new Set(ctx.recentEntries.map((e) => e.date));
-  const plan = generateDailyPlan({ profile: ctx.profile, date: ctx.date, logs: ctx.exerciseHistory, checkIn: ctx.checkIn, sleep: ctx.sleep });
+  const week = weeklyActivity(ctx.exerciseHistory.filter((l) => l.date <= ctx.date), ctx.date, rules, ctx.profile);
   const context = {
     local_time: ctx.now.toLocaleString('en-IN', { weekday: 'long', hour: 'numeric', minute: '2-digit' }),
     profile: {
@@ -72,7 +74,11 @@ export function buildContext(ctx: AssistantContext): string {
       days_logged: days.size,
       avg_protein_g: days.size ? Math.round(ctx.recentEntries.reduce((t, e) => t + e.nutrients.protein, 0) / days.size) : null,
     },
-    todays_activity_plan: { title: plan.title, items: plan.items.map((i) => `${i.name}: ${i.detail}`) },
+    activity_logged_today: ctx.exercises.map((l) => {
+      const c = calcActivity(l, ctx.profile);
+      return `${ACTIVITIES[l.activity].label}: ${l.minutes} min, ${c.intensity}${c.distanceKm ? `, ${c.distanceKm} km` : ''}${c.kcal !== undefined ? `, ~${c.kcal} kcal` : ''}`;
+    }),
+    activity_this_week: { minutes: week.totalMinutes, guideline_minutes: `${week.guidelineMinutes}/${week.guidelineTarget}`, strength_days: week.strengthDays, active_days: week.activeDays },
     app_suggestions: recommendFoods(ctx, 3).map((r) => r.message),
     check_in: ctx.checkIn ? { energy_1_to_5: ctx.checkIn.energy, tiredness_1_to_5: ctx.checkIn.fatigue } : null,
   };

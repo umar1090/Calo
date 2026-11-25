@@ -121,7 +121,6 @@ export function validateStep(step: number, d: Draft): StepErrors {
   if (step === 2 && !d.activityLevel) e.activityLevel = 'Choose the option closest to a typical week';
   if (step === 3 && d.goals.length === 0) e.goals = 'Choose at least one goal';
   if (step === 4 && !d.dietType) e.dietType = 'Choose your diet';
-  if (step === 5 && (d.minutesPerDay < 10 || d.minutesPerDay > 180)) e.minutesPerDay = 'Choose between 10 and 180 minutes';
   return e;
 }
 

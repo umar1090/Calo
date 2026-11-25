@@ -10,11 +10,11 @@ A mobile-first personal nutrition and fitness companion built around Indian home
 |---|---|
 | **Onboarding** | 7-step flow: name, age, gender, height (cm or ft/in), weight, life stage, activity level, goals, diet, cuisines, allergies, sports, equipment, time, fitness level, limitations. Detects under-13 and 13–17 and adapts immediately. |
 | **Calculation engine** | Adults: Mifflin-St Jeor BMR × activity multiplier, gradual weight management with guard-rails. Under-18s: IOM (2005) EER equations with growth allowance, no deficits. Protein, carbs, fat, fibre and water ranges. Extra fuel and water on active days. |
-| **Food log** | 185 Indian foods with realistic portions (1 medium roti, 1 bowl dal, 1 cup cooked rice, 100 g paneer, 1 glass milk…), search with aliases and typo tolerance, quantity, custom grams, oil/ghee level, manual value override, several items per meal, custom foods, edit, delete with undo, day navigation and weekly history. |
+| **Food log** | 275 Indian foods (including 69 chicken, mutton, fish, seafood, beef, pork and egg dishes, Indo-Chinese, rolls and momos, and regional favourites) with realistic portions (1 medium roti, 1 bowl dal, 1 cup cooked rice, 100 g paneer, 1 glass milk…), search with aliases and typo tolerance, quantity, custom grams, oil/ghee level, manual value override, several items per meal, custom foods, edit, delete with undo, day navigation and weekly history. |
 | **Analysis** | Totals, meals logged, macro split, vegetable/fruit servings, protein sources, fibre, water, a gentle balance indicator and supportive feedback. |
 | **Recommendations** | Rule-based, deterministic suggestions from your real entries: protein, vegetables, fruit, fibre, hydration, protein variety, repeated dishes, meal timing, calcium, refuelling after activity. Respects diet, allergies, cuisine and cost. One tap to log a suggestion. |
-| **Activity** | Daily plan (strength, cardio, sport, recovery or rest) from age, guidelines, preferences, equipment, available time, fitness level, limitations, fatigue, sleep and recent history. Checklist, countdown/interval/stopwatch timer, activity logging, weekly guideline tracking, rest-day logic. |
-| **Dashboard** | Nutrition overview, suggestions, protein, water, movement and plan, recent meals, weekly trends, daily check-in. |
+| **Activity** | No prescribed workouts: you log what you did (25 activity types, duration, intensity, optional distance or steps). The app works out pace, MET-based energy used (adults only), extra food and water for the day, weekly guideline minutes, strength days and insights from your logs. Session stopwatch/timer. |
+| **Dashboard** | Nutrition overview, suggestions, protein, water, today's logged activity, recent meals, weekly trends, daily check-in. |
 | **Progress** | Meal consistency, protein, vegetables & fruit, energy (adults only), active minutes, workouts per week, water, energy level, sleep, habit tracker, optional weight. 7 or 30 days. |
 | **Coach** | Built-in assistant that answers meal, protein, breakfast, workout, analysis, pantry ("I have rice, dal and onion"), hydration, sleep, weight and food-info questions using your profile and logs. Optional Claude mode with your own API key. |
 | **Account & data** | Local accounts with encrypted storage, change password, export/import backup, delete account. |
@@ -35,7 +35,7 @@ All rules live in one table, [`src/engine/safety/policy.ts`](src/engine/safety/p
 
 Adult weight-management guard-rails: −250 or −500 kcal/day, never more than 20% of maintenance, never below 1,200 (female) / 1,500 (male) kcal or BMR, no deficit when BMI < 18.5 or during pregnancy/breastfeeding.
 
-Language guard-rails: [`src/engine/safety/language.ts`](src/engine/safety/language.ts) lists phrases the app must never show ("failed", "burn off", "skip dinner", "starve", "compensate", and for minors "deficit", "calories left", "lose weight" and more). Tests push thousands of generated days, plans and coach replies through it.
+Language guard-rails: [`src/engine/safety/language.ts`](src/engine/safety/language.ts) lists phrases the app must never show ("failed", "burn off", "skip dinner", "starve", "compensate", and for minors "deficit", "calories left", "lose weight" and more). Tests push thousands of generated days, activity insights and coach replies through it.
 
 The coach routes crisis, disordered-eating, compensation, extreme-diet, medical and supplement questions to fixed supportive replies (with Tele-MANAS 14416 where relevant) and never sends them to an LLM.
 
@@ -59,7 +59,7 @@ npm test             # 90 unit/integration tests (engines, safety, auth, storage
 npm run test:e2e     # builds, starts preview, runs 24 Playwright steps on phone, tablet and desktop
 ```
 
-The e2e run signs up an adult and a teen, completes onboarding, logs/edits/deletes food, uses the multi-item tray, custom foods, water, check-in, activity plan, timer and logging, asks the coach, checks charts, edits the profile, verifies persistence, checks localStorage holds no plain-text data, and asserts there is no horizontal scrolling at 390 px, 768 px and 1280 px. Screenshots go to `e2e/screenshots/` (git-ignored).
+The e2e run signs up an adult and a teen, completes onboarding, logs/edits/deletes food, uses the multi-item tray, custom foods, water, check-in, activity logging with distance/steps and pace-based calculations, asks the coach, checks charts, edits the profile, verifies persistence, checks localStorage holds no plain-text data, and asserts there is no horizontal scrolling at 390 px, 768 px and 1280 px. Screenshots go to `e2e/screenshots/` (git-ignored).
 
 ## Android app (APK)
 
@@ -82,7 +82,7 @@ src/
     safety/          policy.ts (age rules), language.ts (banned phrases)
     analysis/        daily nutrition analysis and feedback
     recommendations/ food recommendation engine
-    activity/        exercise catalogue, weekly tracking, rest logic, daily plans
+    activity/        activity types and MET values, pace/steps calculations, weekly tracking, insights
     assistant/       intent detection, safety routing, replies
   data/              Indian food database, search, meal combos, pantry recipes
   lib/auth/          PBKDF2 + AES-GCM local accounts, React auth context
@@ -110,7 +110,7 @@ Data is stored in the browser, per account, encrypted:
 
 ## AI coach
 
-- **Built-in (default):** runs entirely on the device, deterministic, uses your profile, today's log, the last 7 days and today's activity plan.
+- **Built-in (default):** runs entirely on the device, deterministic, uses your profile, today's log, the last 7 days and the activity you logged.
 - **Claude (optional):** in **Profile → AI coach**, choose Claude and paste your own Anthropic API key. Questions are answered by `claude-opus-5-5` (streamed, with server-side refusal fallback) using a compact summary of your profile and logs (no name or email). The key is stored encrypted with your data. Safety-sensitive questions always use the built-in coach, and Claude replies are checked by the same language filter; anything that fails falls back to the built-in answer.
 
 ## Supabase (prepared, not connected)

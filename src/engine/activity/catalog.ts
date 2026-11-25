@@ -1,95 +1,91 @@
-import type { ActivityType, Equipment, FitnessLevel, Intensity } from '../types';
+import type { ActivityType, Intensity } from '../types';
 
 export interface ActivityMeta {
   type: ActivityType;
   label: string;
   defaultIntensity: Intensity;
+  /** MET values (Compendium of Physical Activities, Ainsworth et al. 2011), rounded. */
   met: Record<Intensity, number>;
+  /** Counts toward the muscle-strengthening guideline. */
   strength: boolean;
+  /** Impact activity that helps build bone (running, jumping, court sports). */
   boneLoading: boolean;
-  requires?: Equipment[];
-  /** Body areas this activity loads heavily (used with reported limitations). */
-  loads: LimitationKey[];
+  /** Distance can be logged and is used to work out pace. */
+  distance: boolean;
+  /** Steps can be logged (converted to distance). */
+  steps: boolean;
   sport: boolean;
 }
 
-export type LimitationKey = 'knee' | 'back' | 'shoulder' | 'ankle' | 'wrist' | 'breathing' | 'heart';
+const a = (
+  type: ActivityType,
+  label: string,
+  defaultIntensity: Intensity,
+  met: [number, number, number],
+  flags: Partial<Pick<ActivityMeta, 'strength' | 'boneLoading' | 'distance' | 'steps' | 'sport'>> = {},
+): ActivityMeta => ({
+  type,
+  label,
+  defaultIntensity,
+  met: { light: met[0], moderate: met[1], vigorous: met[2] },
+  strength: flags.strength ?? false,
+  boneLoading: flags.boneLoading ?? false,
+  distance: flags.distance ?? false,
+  steps: flags.steps ?? false,
+  sport: flags.sport ?? false,
+});
 
-/** MET values from the Compendium of Physical Activities (Ainsworth et al., 2011), rounded. */
 export const ACTIVITIES: Record<ActivityType, ActivityMeta> = {
-  walking: { type: 'walking', label: 'Walking', defaultIntensity: 'moderate', met: { light: 2.8, moderate: 3.5, vigorous: 5 }, strength: false, boneLoading: false, loads: [], sport: false },
-  running: { type: 'running', label: 'Running / jogging', defaultIntensity: 'vigorous', met: { light: 6, moderate: 8, vigorous: 10 }, strength: false, boneLoading: true, loads: ['knee', 'ankle', 'breathing', 'heart'], sport: false },
-  cycling: { type: 'cycling', label: 'Cycling', defaultIntensity: 'moderate', met: { light: 4, moderate: 6.8, vigorous: 8.5 }, strength: false, boneLoading: false, loads: [], sport: false },
-  basketball: { type: 'basketball', label: 'Basketball', defaultIntensity: 'vigorous', met: { light: 4.5, moderate: 6.5, vigorous: 8 }, strength: false, boneLoading: true, loads: ['knee', 'ankle', 'wrist'], sport: true },
-  football: { type: 'football', label: 'Football', defaultIntensity: 'vigorous', met: { light: 5, moderate: 7, vigorous: 9 }, strength: false, boneLoading: true, loads: ['knee', 'ankle'], sport: true },
-  cricket: { type: 'cricket', label: 'Cricket', defaultIntensity: 'moderate', met: { light: 3, moderate: 4.8, vigorous: 6 }, strength: false, boneLoading: true, loads: ['shoulder'], sport: true },
-  badminton: { type: 'badminton', label: 'Badminton', defaultIntensity: 'moderate', met: { light: 4.5, moderate: 5.5, vigorous: 7 }, strength: false, boneLoading: true, loads: ['shoulder', 'ankle'], sport: true },
-  swimming: { type: 'swimming', label: 'Swimming', defaultIntensity: 'moderate', met: { light: 5, moderate: 6, vigorous: 9.8 }, strength: false, boneLoading: false, loads: ['shoulder'], sport: false },
-  gym: { type: 'gym', label: 'Gym / weights', defaultIntensity: 'moderate', met: { light: 3.5, moderate: 5, vigorous: 6 }, strength: true, boneLoading: true, requires: ['gym_access', 'dumbbells'], loads: ['back', 'shoulder', 'wrist'], sport: false },
-  bodyweight: { type: 'bodyweight', label: 'Bodyweight workout', defaultIntensity: 'moderate', met: { light: 3.5, moderate: 5, vigorous: 8 }, strength: true, boneLoading: true, loads: ['wrist'], sport: false },
-  yoga: { type: 'yoga', label: 'Yoga', defaultIntensity: 'light', met: { light: 2.5, moderate: 3.3, vigorous: 4 }, strength: true, boneLoading: false, loads: [], sport: false },
-  stretching: { type: 'stretching', label: 'Stretching / mobility', defaultIntensity: 'light', met: { light: 2.3, moderate: 2.8, vigorous: 3 }, strength: false, boneLoading: false, loads: [], sport: false },
-  dance: { type: 'dance', label: 'Dance', defaultIntensity: 'moderate', met: { light: 4, moderate: 5.5, vigorous: 7.3 }, strength: false, boneLoading: true, loads: ['knee', 'ankle'], sport: false },
-  other_sport: { type: 'other_sport', label: 'Other sport / active play', defaultIntensity: 'moderate', met: { light: 4, moderate: 6, vigorous: 8 }, strength: false, boneLoading: true, loads: [], sport: true },
+  walking: a('walking', 'Walking', 'moderate', [2.8, 3.5, 5], { distance: true, steps: true }),
+  running: a('running', 'Running / jogging', 'vigorous', [6, 8, 10], { boneLoading: true, distance: true }),
+  cycling: a('cycling', 'Cycling', 'moderate', [4, 6.8, 8.5], { distance: true }),
+  swimming: a('swimming', 'Swimming', 'moderate', [5, 6, 9.8], { distance: true }),
+  hiking: a('hiking', 'Hiking / trekking', 'moderate', [5.3, 6, 7.8], { boneLoading: true, distance: true }),
+  gym: a('gym', 'Gym / weights', 'moderate', [3.5, 5, 6], { strength: true, boneLoading: true }),
+  bodyweight: a('bodyweight', 'Bodyweight workout', 'moderate', [3.5, 5, 8], { strength: true, boneLoading: true }),
+  hiit: a('hiit', 'HIIT / circuit', 'vigorous', [5, 7, 9], { strength: true, boneLoading: true }),
+  yoga: a('yoga', 'Yoga', 'light', [2.5, 3.3, 4], { strength: true }),
+  stretching: a('stretching', 'Stretching / mobility', 'light', [2.3, 2.8, 3]),
+  skipping: a('skipping', 'Skipping rope', 'vigorous', [8.8, 11, 12.3], { boneLoading: true }),
+  stairs: a('stairs', 'Stair climbing', 'moderate', [4, 6, 8.8], { boneLoading: true }),
+  aerobics: a('aerobics', 'Zumba / aerobics', 'moderate', [5, 6.5, 7.3], { boneLoading: true }),
+  dance: a('dance', 'Dance', 'moderate', [4, 5.5, 7.3], { boneLoading: true }),
+  martial_arts: a('martial_arts', 'Martial arts', 'vigorous', [5.3, 7, 10.3], { boneLoading: true, sport: true }),
+  cricket: a('cricket', 'Cricket', 'moderate', [3, 4.8, 6], { boneLoading: true, sport: true }),
+  football: a('football', 'Football', 'vigorous', [5, 7, 9], { boneLoading: true, sport: true }),
+  basketball: a('basketball', 'Basketball', 'vigorous', [4.5, 6.5, 8], { boneLoading: true, sport: true }),
+  badminton: a('badminton', 'Badminton', 'moderate', [4.5, 5.5, 7], { boneLoading: true, sport: true }),
+  tennis: a('tennis', 'Tennis', 'moderate', [5, 7.3, 8], { boneLoading: true, sport: true }),
+  table_tennis: a('table_tennis', 'Table tennis', 'moderate', [3, 4, 5], { sport: true }),
+  volleyball: a('volleyball', 'Volleyball', 'moderate', [3, 4, 6], { boneLoading: true, sport: true }),
+  kabaddi: a('kabaddi', 'Kabaddi', 'vigorous', [5, 7, 8], { boneLoading: true, sport: true }),
+  household: a('household', 'Housework / gardening', 'light', [2.5, 3.5, 4.5]),
+  other_sport: a('other_sport', 'Other sport / active play', 'moderate', [4, 6, 8], { boneLoading: true, sport: true }),
 };
 
-export interface Exercise {
-  id: string;
-  name: string;
-  focus: 'legs' | 'push' | 'pull' | 'core' | 'full' | 'bone' | 'mobility' | 'balance';
-  equipment: Equipment[]; // any one of these is enough; [] = none needed
-  minLevel: FitnessLevel;
-  dose: Record<FitnessLevel, string>;
-  minutes: number;
-  avoidFor: LimitationKey[];
-  cue: string;
-  boneLoading?: boolean;
-  /** Not suggested to under-18s (e.g. heavy barbell work without coaching). */
-  adultsOnly?: boolean;
-}
-
-export const EXERCISES: Exercise[] = [
-  { id: 'squat', name: 'Bodyweight squats', focus: 'legs', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 10', intermediate: '3 × 15', advanced: '4 × 20' }, minutes: 5, avoidFor: ['knee'], cue: 'Sit back as if onto a chair, chest up, knees in line with toes.' },
-  { id: 'chair-sit', name: 'Sit-to-stand from a chair', focus: 'legs', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 8', intermediate: '3 × 12', advanced: '3 × 15' }, minutes: 4, avoidFor: [], cue: 'Stand up without using your hands, sit down slowly.' },
-  { id: 'lunge', name: 'Reverse lunges', focus: 'legs', equipment: [], minLevel: 'intermediate', dose: { beginner: '2 × 6 each leg', intermediate: '3 × 10 each leg', advanced: '3 × 14 each leg' }, minutes: 6, avoidFor: ['knee'], cue: 'Step back, lower gently, push through the front heel.' },
-  { id: 'glute-bridge', name: 'Glute bridges', focus: 'legs', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 12', intermediate: '3 × 15', advanced: '3 × 20 (single leg)' }, minutes: 4, avoidFor: [], cue: 'Squeeze your glutes at the top, keep ribs down.' },
-  { id: 'wall-pushup', name: 'Wall push-ups', focus: 'push', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 10', intermediate: '3 × 15', advanced: '3 × 20' }, minutes: 4, avoidFor: ['shoulder', 'wrist'], cue: 'Body in one straight line from head to heels.' },
-  { id: 'knee-pushup', name: 'Push-ups (knees or full)', focus: 'push', equipment: [], minLevel: 'intermediate', dose: { beginner: '2 × 5 on knees', intermediate: '3 × 8', advanced: '4 × 15' }, minutes: 5, avoidFor: ['shoulder', 'wrist'], cue: 'Lower your chest between your hands, elbows at about 45°.' },
-  { id: 'band-row', name: 'Band or towel rows', focus: 'pull', equipment: ['resistance_band'], minLevel: 'beginner', dose: { beginner: '2 × 12', intermediate: '3 × 15', advanced: '4 × 15' }, minutes: 5, avoidFor: [], cue: 'Pull elbows back and squeeze shoulder blades together.' },
-  { id: 'db-row', name: 'Dumbbell rows', focus: 'pull', equipment: ['dumbbells', 'gym_access'], minLevel: 'beginner', dose: { beginner: '2 × 10 each arm (light)', intermediate: '3 × 10 each arm', advanced: '4 × 10 each arm' }, minutes: 6, avoidFor: ['back'], cue: 'Support yourself on a bench or chair, flat back, pull to your hip.' },
-  { id: 'superman', name: 'Superman holds', focus: 'pull', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 8 (2 s hold)', intermediate: '3 × 10 (3 s hold)', advanced: '3 × 12 (5 s hold)' }, minutes: 4, avoidFor: ['back'], cue: 'Lift arms and legs gently, look at the floor.' },
-  { id: 'db-press', name: 'Dumbbell shoulder press', focus: 'push', equipment: ['dumbbells', 'gym_access'], minLevel: 'intermediate', dose: { beginner: '2 × 8 (light)', intermediate: '3 × 10', advanced: '4 × 10' }, minutes: 5, avoidFor: ['shoulder', 'back'], cue: 'Brace your core, press straight up without arching your back.' },
-  { id: 'goblet-squat', name: 'Goblet squats', focus: 'legs', equipment: ['dumbbells', 'gym_access'], minLevel: 'intermediate', dose: { beginner: '2 × 8 (light)', intermediate: '3 × 10', advanced: '4 × 12' }, minutes: 6, avoidFor: ['knee', 'back'], cue: 'Hold the weight at your chest, sit down between your heels.' },
-  { id: 'plank', name: 'Plank', focus: 'core', equipment: [], minLevel: 'beginner', dose: { beginner: '3 × 15 s', intermediate: '3 × 30 s', advanced: '3 × 60 s' }, minutes: 4, avoidFor: ['shoulder', 'wrist'], cue: 'Forearms down, straight line from shoulders to heels.' },
-  { id: 'dead-bug', name: 'Dead bugs', focus: 'core', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 6 each side', intermediate: '3 × 10 each side', advanced: '3 × 12 each side' }, minutes: 4, avoidFor: [], cue: 'Lower back stays pressed to the floor as you move opposite arm and leg.' },
-  { id: 'bird-dog', name: 'Bird dogs', focus: 'core', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 6 each side', intermediate: '3 × 10 each side', advanced: '3 × 12 each side' }, minutes: 4, avoidFor: [], cue: 'Reach long through opposite hand and foot, keep hips level.' },
-  { id: 'jumping-jacks', name: 'Jumping jacks', focus: 'bone', equipment: [], minLevel: 'beginner', dose: { beginner: '3 × 20 s', intermediate: '3 × 40 s', advanced: '4 × 45 s' }, minutes: 4, avoidFor: ['knee', 'ankle', 'heart'], cue: 'Land softly on the balls of your feet.', boneLoading: true },
-  { id: 'skipping', name: 'Skipping rope', focus: 'bone', equipment: ['skipping_rope'], minLevel: 'beginner', dose: { beginner: '5 × 30 s', intermediate: '6 × 45 s', advanced: '8 × 60 s' }, minutes: 6, avoidFor: ['knee', 'ankle', 'heart'], cue: 'Small, quick hops; rest as long as you need between rounds.', boneLoading: true },
-  { id: 'hop-jumps', name: 'Squat jumps / hopping', focus: 'bone', equipment: [], minLevel: 'intermediate', dose: { beginner: '2 × 6', intermediate: '3 × 8', advanced: '3 × 12' }, minutes: 4, avoidFor: ['knee', 'ankle', 'heart'], cue: 'Jump up, land softly with bent knees.', boneLoading: true },
-  { id: 'step-ups', name: 'Step-ups on a stair', focus: 'legs', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 8 each leg', intermediate: '3 × 12 each leg', advanced: '3 × 15 each leg' }, minutes: 5, avoidFor: ['knee'], cue: 'Push through the whole foot on the step; hold a railing if you need.', boneLoading: true },
-  { id: 'single-leg-stand', name: 'Single-leg balance', focus: 'balance', equipment: [], minLevel: 'beginner', dose: { beginner: '3 × 20 s each leg', intermediate: '3 × 40 s each leg', advanced: '3 × 60 s eyes closed' }, minutes: 3, avoidFor: [], cue: 'Stand near a wall for support if needed.' },
-  { id: 'surya-namaskar', name: 'Surya namaskar', focus: 'full', equipment: [], minLevel: 'beginner', dose: { beginner: '4 rounds, slow', intermediate: '8 rounds', advanced: '12 rounds' }, minutes: 8, avoidFor: ['wrist', 'back'], cue: 'Move with your breath; skip any pose that hurts.' },
-  { id: 'cat-cow', name: 'Cat–cow stretch', focus: 'mobility', equipment: [], minLevel: 'beginner', dose: { beginner: '10 slow rounds', intermediate: '10 slow rounds', advanced: '12 slow rounds' }, minutes: 2, avoidFor: [], cue: 'Round and arch your back gently with your breath.' },
-  { id: 'hamstring-stretch', name: 'Hamstring & hip stretch', focus: 'mobility', equipment: [], minLevel: 'beginner', dose: { beginner: '2 × 30 s each side', intermediate: '2 × 30 s each side', advanced: '2 × 45 s each side' }, minutes: 3, avoidFor: [], cue: 'Ease in until you feel a stretch, never pain.' },
-  { id: 'shoulder-rolls', name: 'Shoulder & neck mobility', focus: 'mobility', equipment: [], minLevel: 'beginner', dose: { beginner: '1 minute', intermediate: '1 minute', advanced: '1 minute' }, minutes: 2, avoidFor: [], cue: 'Slow circles, both directions.' },
-  { id: 'childs-pose', name: "Child's pose (balasana)", focus: 'mobility', equipment: [], minLevel: 'beginner', dose: { beginner: '1 minute', intermediate: '1–2 minutes', advanced: '2 minutes' }, minutes: 2, avoidFor: ['knee'], cue: 'Breathe slowly into your back.' },
-  { id: 'deadlift-heavy', name: 'Barbell deadlift', focus: 'pull', equipment: ['gym_access'], minLevel: 'advanced', dose: { beginner: '—', intermediate: '3 × 6', advanced: '4 × 5' }, minutes: 8, avoidFor: ['back'], cue: 'Only with good technique; brace and keep the bar close.', adultsOnly: true },
-];
-
-const LIMITATION_WORDS: Record<LimitationKey, string[]> = {
-  knee: ['knee', 'acl', 'meniscus', 'patella'],
-  back: ['back', 'spine', 'disc', 'sciatica', 'lumbar'],
-  shoulder: ['shoulder', 'rotator'],
-  ankle: ['ankle', 'foot', 'feet', 'heel', 'achilles', 'shin'],
-  wrist: ['wrist', 'hand', 'elbow', 'carpal'],
-  breathing: ['asthma', 'breath', 'wheez'],
-  heart: ['heart', 'cardiac', 'blood pressure', 'hypertension', ' bp', 'chest pain'],
+/** MET by speed (km/h) from the Compendium; each row is [minimum speed, MET]. */
+const SPEED_MET: Partial<Record<ActivityType, [number, number][]>> = {
+  walking: [[0, 2], [3.2, 2.8], [4, 3], [4.8, 3.5], [5.6, 4.3], [6.4, 5], [7.2, 7], [8, 8.3]],
+  running: [[0, 6], [8, 8.3], [8.4, 9], [9.7, 9.8], [10.8, 10.5], [11.3, 11], [12.1, 11.5], [12.9, 11.8], [13.8, 12.3], [14.5, 12.8], [16.1, 14.5]],
+  cycling: [[0, 4], [16, 6.8], [19, 8], [22, 10], [25, 12], [30, 15.8]],
+  swimming: [[0, 6], [1.8, 8.3], [3, 10]],
 };
 
-export function parseLimitations(text: string | undefined): LimitationKey[] {
-  if (!text) return [];
-  const t = ` ${text.toLowerCase()} `;
-  return (Object.keys(LIMITATION_WORDS) as LimitationKey[]).filter((k) => LIMITATION_WORDS[k].some((w) => t.includes(w)));
+export function metForSpeed(type: ActivityType, kmh: number): number | undefined {
+  const table = SPEED_MET[type];
+  if (!table || !(kmh > 0)) return undefined;
+  let met = table[0][1];
+  for (const [min, m] of table) if (kmh >= min) met = m;
+  return met;
 }
 
-export const LEVEL_ORDER: Record<FitnessLevel, number> = { beginner: 0, intermediate: 1, advanced: 2 };
+/** Walking stride is about 41.5% of height. */
+export function stepsToKm(steps: number, heightCm: number): number {
+  return Math.round(((steps * heightCm * 0.415) / 100 / 1000) * 100) / 100;
+}
+
+export function intensityForMet(met: number): Intensity {
+  if (met < 3) return 'light';
+  if (met < 6) return 'moderate';
+  return 'vigorous';
+}

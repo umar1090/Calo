@@ -248,22 +248,34 @@ try {
     await shot(page, '05-dashboard-phone');
   });
 
-  await step('activity plan, checklist, timer and logging', async () => {
+  await step('activity is logged by the user and calculated from the log', async () => {
     await page.goto(`${BASE}/move`);
-    await page.getByRole('list', { name: 'Exercise checklist' }).waitFor();
-    await page.getByRole('button', { name: /Mark Warm-up done/ }).click();
-    await page.getByRole('button', { name: /Mark Warm-up not done/ }).waitFor();
+    await page.getByRole('heading', { name: 'What did you do today?' }).waitFor();
+    for (const planWord of [/Exercise checklist/, /Strength session/, /Daily plan/, /Rest & recover/]) assert.equal(await page.getByText(planWord).count(), 0, `plan UI still present: ${planWord}`);
+    await page.getByRole('button', { name: 'Log activity' }).first().click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: 'Running / jogging' }).click();
+    await dialog.getByLabel('Distance (km, optional)').fill('5');
+    await dialog.getByText(/Worked out from your pace/).waitFor(); // 5 km in 30 min = 10 km/h
+    await dialog.getByText('≈ 295 kcal used').waitFor(); // 9.8 MET × 60 kg × 0.5 h
+    await dialog.getByRole('button', { name: 'Log activity' }).click();
+    await page.getByText('Activity logged').first().waitFor();
+    await page.getByRole('button', { name: 'Edit Running / jogging' }).first().waitFor();
+    await page.getByText(/5 km/).first().waitFor();
+    await page.getByText('Energy used (est.)').first().waitFor();
+    await page.getByText(/Added to today's estimates/).waitFor();
+    // Edit: change to a walk with steps; intensity follows the pace.
+    await page.getByRole('button', { name: 'Edit Running / jogging' }).first().click();
+    await dialog.getByRole('button', { name: 'Walking' }).click();
+    await dialog.getByLabel('Distance (km, optional)').fill('');
+    await dialog.getByLabel('Steps (optional)').fill('4000');
+    await dialog.getByRole('button', { name: 'Save changes' }).click();
+    await page.getByText('Activity updated').waitFor();
+    await page.getByRole('button', { name: 'Edit Walking' }).first().waitFor();
+    await page.getByText(/4,000 steps/).first().waitFor();
     await page.getByRole('button', { name: 'Start' }).click();
     await page.waitForTimeout(1200);
     await page.getByRole('button', { name: 'Pause' }).click();
-    await page.getByRole('button', { name: 'Log activity' }).first().click();
-    const dialog = page.getByRole('dialog');
-    await dialog.getByRole('button', { name: 'Football' }).click();
-    await dialog.getByRole('button', { name: 'Increase minutes' }).click();
-    await dialog.getByRole('button', { name: 'Log activity' }).click();
-    await page.getByText('Activity logged. Nice work!').waitFor();
-    await page.getByRole('button', { name: 'Edit Football' }).waitFor();
-    await page.getByText(/kcal est\./).first().waitFor(); // adults see informational estimates
     await noHorizontalScroll(page, 'move');
     await shot(page, '06-move-phone');
   });
@@ -417,8 +429,18 @@ try {
     await teen.getByRole('button', { name: 'Send' }).click();
     await teen.getByText(/no need to balance food out with exercise/).waitFor();
     await teen.goto(`${BASE}/move`);
-    await teen.getByText(/60 minutes of moderate-to-vigorous activity/).waitFor();
-    assert.equal(await teen.getByText(/Estimated energy used/).count(), 0);
+    await teen.getByText('Weekly minutes (420 = 60 a day)').waitFor();
+    await teen.getByRole('button', { name: 'Log activity' }).first().click();
+    const ad = teen.getByRole('dialog');
+    await ad.getByRole('button', { name: 'Football' }).click();
+    await ad.getByText('Counts toward your 60 minutes').waitFor();
+    await ad.getByRole('button', { name: 'Increase minutes' }).click();
+    await ad.getByRole('button', { name: 'Increase minutes' }).click();
+    await ad.getByRole('button', { name: 'Log activity' }).click();
+    await teen.getByText(/Active day: your body needs a little more food today/).waitFor();
+    const moveText = await teen.locator('main').innerText();
+    assert.ok(!/kcal|calories burned|energy used/i.test(moveText), 'teen activity page shows calorie numbers');
+    await shot(teen, '14-move-teen');
     await teen.goto(`${BASE}/profile`);
     await teen.getByText(/Off by default for under-18s/).waitFor();
     assert.equal(await teen.getByRole('switch', { name: /Weight tracking/ }).isChecked(), false);

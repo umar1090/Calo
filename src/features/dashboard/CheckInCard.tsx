@@ -65,7 +65,7 @@ export function CheckInCard({ date, existing, onDone }: { date: string; existing
             <input id="sleep-hours" type="number" inputMode="decimal" step="0.5" min={0} max={16} className="input max-w-[6rem]" value={sleep} onChange={(e) => setSleep(e.target.value)} />
           </div>
         )}
-        <p className="text-xs text-forest-500">Your activity plan adapts to how you feel. Rest is part of getting fitter.</p>
+        <p className="text-xs text-forest-500">Tracking energy and tiredness helps you spot patterns with sleep, food and activity.</p>
         <button className="btn-primary w-full sm:w-auto" onClick={save}>
           Save check-in
         </button>

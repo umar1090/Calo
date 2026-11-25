@@ -234,11 +234,6 @@ export class UserStore {
     return this.commit({ ...this.db, recStates: [...this.db.recStates.filter((r) => !(r.date === state.date && r.recId === state.recId)), state] });
   }
 
-  togglePlanCheck(date: string, itemId: string) {
-    const current = this.db.planChecks[date] ?? [];
-    const next = current.includes(itemId) ? current.filter((i) => i !== itemId) : [...current, itemId];
-    return this.commit({ ...this.db, planChecks: { ...this.db.planChecks, [date]: next } });
-  }
 
   appendChat(messages: Omit<ChatMessage, 'id' | 'at'>[]) {
     const stamped = messages.map((m) => ({ ...m, id: randomId(), at: this.nowIso() }));

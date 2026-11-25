@@ -1,18 +1,18 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
-import clsx from 'clsx';
 import { Activity, Beef, ChevronRight, Footprints, Plus, Salad, Sparkles, TrendingUp, UtensilsCrossed, CheckCircle2, Circle } from 'lucide-react';
 import { Card, CardHeader, ProgressBar, ProgressRing, Pill } from '@/components/ui/primitives';
 import { MiniBars } from '@/components/charts/MiniBars';
-import { useAction, useDay, useDB, useNow, useProfile, useToday } from '@/hooks/useAppData';
-import { useStore } from '@/lib/auth/AuthContext';
+import { useDay, useDB, useNow, useProfile, useToday } from '@/hooks/useAppData';
 import { formatLongDate, lastNDays } from '@/engine/dates';
 import type { MealType } from '@/engine/types';
 import type { Recommendation } from '@/engine/recommendations/foodRecs';
 import { fmt, mealLabel } from '@/lib/labels';
 import { AddFoodSheet } from '@/features/log/AddFoodSheet';
 import { WaterCard } from '@/features/log/WaterCard';
-import { usePlan } from '@/features/activity/usePlan';
+import { useActivity } from '@/features/activity/useActivity';
+import { LogActivitySheet } from '@/features/activity/LogActivitySheet';
+import { ActivityLine } from '@/features/activity/Move';
 import { CheckInCard } from './CheckInCard';
 import { FeedbackList, RecommendationList } from './Insights';
 
@@ -28,9 +28,9 @@ export default function Dashboard() {
   const profile = useProfile();
   const day = useDay(today);
   const db = useDB();
-  const { plan, week, rules, checks, minutesToday } = usePlan(today);
-  const store = useStore();
-  const run = useAction();
+  const act = useActivity(today);
+  const rules = act.rules;
+  const [actSheet, setActSheet] = useState(false);
   const [sheet, setSheet] = useState<{ meal: MealType; preset?: { foodId: string; portionId?: string } } | null>(null);
   const [editCheckIn, setEditCheckIn] = useState(false);
 
@@ -139,44 +139,39 @@ export default function Dashboard() {
 
         <WaterCard date={today} waterMl={day.waterMl} targetMl={day.day.waterMl} active={day.day.waterMl > day.targets.waterMl} />
 
-        {/* Movement */}
-        <Card aria-label="Daily movement">
+        {/* Movement: calculated from what was logged */}
+        <Card aria-label="Today's activity">
           <CardHeader
             icon={<Footprints className="h-[18px] w-[18px]" strokeWidth={1.75} />}
-            eyebrow="Movement"
-            title={<span className="num">{minutesToday} min <span className="text-sm font-normal text-forest-500">{youth ? 'of 60 min today' : `· week ${week.guidelineMinutes}/${week.guidelineTarget} min`}</span></span>}
+            eyebrow="Activity"
+            title={<span className="num">{act.minutesToday} min <span className="text-sm font-normal text-forest-500">{youth ? 'of 60 min today' : `· week ${act.week.guidelineMinutes}/${act.week.guidelineTarget} min`}</span></span>}
             action={
               <Link to="/move" className="inline-flex items-center gap-1 text-xs font-semibold text-sage-700 hover:underline">
-                Open plan <ChevronRight className="h-3.5 w-3.5" aria-hidden />
+                Details <ChevronRight className="h-3.5 w-3.5" aria-hidden />
               </Link>
             }
           />
-          <ProgressBar value={youth ? minutesToday / dailyGoal : week.guidelineProgress} color="bg-clay-400" track="bg-clay-100" label="Activity progress" />
-          <div className="mt-4 rounded-2xl bg-cream-200/50 p-4">
-            <div className="flex items-center justify-between gap-2">
-              <p className="font-semibold">{plan.title}</p>
-              <Pill tone={plan.type === 'rest' || plan.type === 'recovery' ? 'dew' : 'clay'}>~{plan.totalMinutes} min</Pill>
-            </div>
-            <ul className="mt-3 space-y-2">
-              {plan.items.filter((i) => i.kind !== 'everyday').slice(0, 4).map((i) => {
-                const done = checks.includes(i.id);
-                return (
-                  <li key={i.id}>
-                    <button className="flex w-full items-center gap-3 text-left text-sm" onClick={() => run(() => store.togglePlanCheck(today, i.id))} aria-pressed={done}>
-                      {done ? <CheckCircle2 className="h-5 w-5 shrink-0 text-sage-600" aria-hidden /> : <Circle className="h-5 w-5 shrink-0 text-forest-400" aria-hidden />}
-                      <span className={clsx('flex-1', done && 'text-forest-400 line-through')}>{i.name}</span>
-                      <span className="num text-xs text-forest-500">{i.minutes} min</span>
-                    </button>
-                  </li>
-                );
-              })}
+          <ProgressBar value={youth ? act.minutesToday / dailyGoal : act.week.guidelineProgress} color="bg-clay-400" track="bg-clay-100" label="Activity progress" />
+          {act.today.length > 0 ? (
+            <ul className="mt-3 divide-y divide-cream-300/60">
+              {act.today.slice(0, 3).map(({ log }) => (
+                <ActivityLine key={log.id} log={log} />
+              ))}
             </ul>
-          </div>
-          {day.checkIn && (
-            <button className="mt-3 text-xs font-semibold text-sage-700 hover:underline" onClick={() => setEditCheckIn(true)}>
-              Update today's check-in
-            </button>
+          ) : (
+            <p className="mt-4 text-sm text-forest-500">No activity logged today. Log what you did and your food and water estimates will adjust.</p>
           )}
+          {(act.kcalToday ?? 0) > 0 && <p className="num mt-2 text-xs text-forest-500">About {fmt(act.kcalToday!)} kcal used today (estimate).</p>}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button className="btn-secondary !min-h-[38px] !px-3.5" onClick={() => setActSheet(true)}>
+              <Plus className="h-4 w-4" aria-hidden /> Log activity
+            </button>
+            {day.checkIn && (
+              <button className="text-xs font-semibold text-sage-700 hover:underline" onClick={() => setEditCheckIn(true)}>
+                Update today's check-in
+              </button>
+            )}
+          </div>
         </Card>
 
         {/* Recent meals */}
@@ -243,6 +238,7 @@ export default function Dashboard() {
         All numbers are estimates for guidance, not medical advice. Talk to a doctor or registered dietitian about health conditions.
       </p>
 
+      {actSheet && <LogActivitySheet open onClose={() => setActSheet(false)} initial={{}} today={today} />}
       <AddFoodSheet open={sheet !== null} onClose={() => setSheet(null)} date={today} meal={sheet?.meal ?? 'snack'} preset={sheet?.preset ?? null} />
     </div>
   );

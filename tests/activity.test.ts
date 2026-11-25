@@ -1,112 +1,117 @@
 import { describe, expect, it } from 'vitest';
-import { generateDailyPlan, loggedActivityKcal, restAdvice, weeklyActivity } from '@/engine/activity/engine';
-import { parseLimitations } from '@/engine/activity/catalog';
+import { activityInsights, calcActivity, loggedActivityKcal, weeklyActivity } from '@/engine/activity/engine';
+import { ACTIVITIES, metForSpeed, stepsToKm } from '@/engine/activity/catalog';
 import { getSafetyRules } from '@/engine/safety/policy';
 import { findUnsafePhrases } from '@/engine/safety/language';
 import { addDays } from '@/engine/dates';
-import type { Profile } from '@/engine/types';
+import { computeTargets, dayTargets } from '@/engine/nutrition/targets';
+import type { ExerciseLog } from '@/engine/types';
 import { adult, child, exercise, teen } from './fixtures';
 
 const D = '2026-11-25'; // a Wednesday
+const adult70 = { ...adult, weightKg: 70, heightCm: 170 };
+
+describe('calculations from logged activity', () => {
+  it('estimates energy with MET × weight × time for adults', () => {
+    // walking, moderate: 3.5 MET × 70 kg × 1 h = 245 kcal
+    expect(calcActivity({ activity: 'walking', minutes: 60, intensity: 'moderate' }, adult70).kcal).toBe(245);
+    // football, vigorous: 9 MET × 70 × 0.5 = 315
+    expect(loggedActivityKcal(adult70, { activity: 'football', intensity: 'vigorous', minutes: 30 })).toBe(315);
+  });
+
+  it('uses pace from distance to pick MET and intensity', () => {
+    // 5 km in 30 min = 10 km/h running → 9.8 MET (Compendium) → vigorous
+    const run = calcActivity({ activity: 'running', minutes: 30, intensity: 'light', distanceKm: 5 }, adult70);
+    expect(run.paceKmh).toBe(10);
+    expect(run.paceMinPerKm).toBe(6);
+    expect(run.met).toBe(9.8);
+    expect(run.intensity).toBe('vigorous');
+    expect(run.kcal).toBe(345); // 9.8 × 70 × 0.5 = 343 → nearest 5
+    // 3 km in 60 min walking = 3 km/h → 2 MET → light
+    expect(calcActivity({ activity: 'walking', minutes: 60, intensity: 'vigorous', distanceKm: 3 }, adult70).intensity).toBe('light');
+    expect(metForSpeed('cycling', 20)).toBe(8);
+    expect(metForSpeed('gym', 10)).toBeUndefined();
+  });
+
+  it('converts walking steps to distance from height', () => {
+    expect(stepsToKm(10000, 170)).toBeCloseTo(7.06, 2);
+    const walk = calcActivity({ activity: 'walking', minutes: 60, intensity: 'moderate', steps: 7000 }, adult70);
+    expect(walk.distanceKm).toBeCloseTo(4.94, 2);
+    expect(walk.paceKmh).toBe(4.9);
+    expect(walk.met).toBe(3.5);
+  });
+
+  it('never calculates energy burned for under-18s', () => {
+    for (const p of [teen, child]) {
+      for (const activity of Object.keys(ACTIVITIES) as ExerciseLog['activity'][]) {
+        expect(calcActivity({ activity, minutes: 60, intensity: 'vigorous', distanceKm: 8 }, p).kcal).toBeUndefined();
+      }
+      expect(weeklyActivity([exercise(D, 60, 'vigorous', 'football')], D, getSafetyRules(p.age), p).kcal).toBeUndefined();
+    }
+  });
+
+  it('feeds logged activity into the day’s food and water estimates', () => {
+    const t = computeTargets(adult70);
+    const day = dayTargets(t, adult70, [exercise(D, 90, 'vigorous', 'running')]);
+    expect(day.energyTarget).toBeGreaterThan(t.energyTarget);
+    expect(day.waterMl).toBeGreaterThan(t.waterMl);
+  });
+});
 
 describe('weekly activity tracking', () => {
   it('counts vigorous minutes double for adults but not for teens', () => {
     const logs = [exercise('2026-11-23', 30, 'vigorous', 'running'), exercise('2026-11-24', 30, 'moderate')];
-    expect(weeklyActivity(logs, D, getSafetyRules(30)).guidelineMinutes).toBe(90);
-    expect(weeklyActivity(logs, D, getSafetyRules(15)).guidelineMinutes).toBe(60);
+    expect(weeklyActivity(logs, D, getSafetyRules(30), adult70).guidelineMinutes).toBe(90);
+    expect(weeklyActivity(logs, D, getSafetyRules(15), teen).guidelineMinutes).toBe(60);
     expect(weeklyActivity(logs, D, getSafetyRules(15)).guidelineTarget).toBe(420);
     expect(weeklyActivity(logs, D, getSafetyRules(30)).guidelineTarget).toBe(150);
   });
 
-  it('tracks strength and active days per Monday-based week', () => {
-    const logs = [exercise('2026-11-23', 30, 'moderate', 'bodyweight', true), exercise('2026-11-22', 40)];
-    const w = weeklyActivity(logs, D, getSafetyRules(30));
+  it('does not count light activity toward the guideline', () => {
+    const logs = [exercise('2026-11-23', 60, 'light', 'household'), exercise('2026-11-23', 30, 'light', 'stretching')];
+    const w = weeklyActivity(logs, D, getSafetyRules(30), adult70);
+    expect(w.totalMinutes).toBe(90);
+    expect(w.guidelineMinutes).toBe(0);
+  });
+
+  it('tracks strength days, totals by activity and Monday-based weeks', () => {
+    const logs = [exercise('2026-11-23', 30, 'moderate', 'bodyweight', true), exercise('2026-11-24', 20, 'moderate', 'bodyweight', true), exercise('2026-11-22', 40)];
+    const w = weeklyActivity(logs, D, getSafetyRules(30), adult70);
     expect(w.weekStart).toBe('2026-11-23');
-    expect(w.strengthDays).toBe(1);
-    expect(w.totalMinutes).toBe(30); // Sunday 22nd belongs to the previous week
+    expect(w.strengthDays).toBe(2);
+    expect(w.totalMinutes).toBe(50); // Sunday 22nd belongs to the previous week
+    expect(w.byActivity).toEqual([{ activity: 'bodyweight', minutes: 50, sessions: 2 }]);
+    expect(w.kcal).toBeGreaterThan(0);
   });
 });
 
-describe('rest recommendations', () => {
-  it('recommends rest when fatigue is very high', () => {
-    expect(restAdvice({ date: D, logs: [], profile: adult, checkIn: { date: D, energy: 3, fatigue: 5 } }).level).toBe('rest');
-    expect(restAdvice({ date: D, logs: [], profile: adult, checkIn: { date: D, energy: 3, fatigue: 4 } }).level).toBe('light');
+describe('insights from logs', () => {
+  it('reports progress and missing strength work as observations', () => {
+    const ins = activityInsights({ logs: [exercise('2026-11-24', 40, 'moderate', 'walking')], date: D, profile: adult70 });
+    expect(ins.map((i) => i.id)).toEqual(expect.arrayContaining(['guideline_progress', 'strength_none', 'longest']));
   });
 
-  it('recommends rest after six hard days in a row', () => {
-    const logs = Array.from({ length: 6 }, (_, i) => exercise(addDays(D, -(i + 1)), 45, 'vigorous', 'running'));
-    const a = restAdvice({ date: D, logs, profile: adult });
-    expect(a.level).toBe('rest');
-    expect(a.reasons[0]).toMatch(/6 days in a row/);
+  it('celebrates a met guideline and notes long streaks', () => {
+    const logs = Array.from({ length: 7 }, (_, i) => exercise(addDays(D, -i), 40, 'vigorous', 'running'));
+    const ids = activityInsights({ logs, date: D, profile: adult70 }).map((i) => i.id);
+    expect(ids).toContain('guideline_met');
+    expect(ids).toContain('streak');
   });
 
-  it('suggests an easier day after short sleep', () => {
-    expect(restAdvice({ date: D, logs: [], profile: adult, sleep: { date: D, hours: 4.5, quality: 2 } }).level).toBe('light');
-  });
-});
-
-describe('daily plan generation', () => {
-  it('gives teens a 60-minute target that counts sports and everyday movement', () => {
-    const plan = generateDailyPlan({ profile: teen, date: D, logs: [] });
-    expect(plan.guidelineNote).toMatch(/60 minutes/);
-    expect(plan.guidelineNote).toMatch(/Sports, PE, cycling, walking/);
-    expect(plan.items.some((i) => i.kind === 'everyday')).toBe(true);
-    expect(plan.estimatedKcal).toBeUndefined();
+  it('notices a quiet spell without pressure', () => {
+    const ins = activityInsights({ logs: [exercise(addDays(D, -6), 30)], date: D, profile: adult70 });
+    expect(ins.find((i) => i.id === 'quiet')?.text).toMatch(/even a walk or housework/);
   });
 
-  it('never attaches calorie numbers to plans or logs for under-18s', () => {
-    for (const p of [teen, child]) {
-      for (let i = 0; i < 14; i++) {
-        expect(generateDailyPlan({ profile: p, date: addDays(D, i), logs: [] }).estimatedKcal).toBeUndefined();
-      }
-      expect(loggedActivityKcal(p, { activity: 'football', intensity: 'vigorous', minutes: 60 })).toBeUndefined();
-    }
-    expect(loggedActivityKcal(adult, { activity: 'walking', intensity: 'moderate', minutes: 60 })).toBe(210);
-  });
-
-  it('returns a rest day for an exhausted user', () => {
-    const plan = generateDailyPlan({ profile: adult, date: D, logs: [], checkIn: { date: D, energy: 2, fatigue: 5 } });
-    expect(plan.type).toBe('rest');
-    expect(plan.totalMinutes).toBeLessThanOrEqual(20);
-  });
-
-  it('schedules strength work when the week is short of strength days', () => {
-    const plans = Array.from({ length: 7 }, (_, i) => generateDailyPlan({ profile: adult, date: addDays('2026-11-23', i), logs: [] }));
-    expect(plans.some((p) => p.type === 'strength')).toBe(true);
-    const sat = generateDailyPlan({ profile: adult, date: '2026-11-28', logs: [] });
-    expect(sat.type).toBe('strength'); // 0 of 2 done with 2 days left
-  });
-
-  it('respects knee limitations and equipment', () => {
-    const p: Profile = { ...adult, limitations: 'Knee pain after running', sports: ['running', 'walking'], equipment: ['none'] };
-    expect(parseLimitations(p.limitations)).toEqual(['knee']);
-    for (let i = 0; i < 14; i++) {
-      const plan = generateDailyPlan({ profile: p, date: addDays(D, i), logs: [] });
-      const names = plan.items.map((x) => x.name.toLowerCase()).join(' ');
-      expect(names).not.toMatch(/squat|lunge|jump|running|skipping|step-up/);
-      expect(plan.items.some((x) => x.name.includes('Dumbbell'))).toBe(false);
-    }
-  });
-
-  it('keeps durations within available time for adults and avoids excessive training', () => {
-    const p: Profile = { ...adult, minutesPerDay: 20, fitnessLevel: 'advanced' };
-    for (let i = 0; i < 14; i++) {
-      const plan = generateDailyPlan({ profile: p, date: addDays(D, i), logs: [] });
-      expect(plan.totalMinutes).toBeLessThanOrEqual(45);
-    }
-  });
-
-  it('adds a doctor note for heart conditions', () => {
-    const plan = generateDailyPlan({ profile: { ...adult, limitations: 'high blood pressure' }, date: D, logs: [] });
-    expect(plan.notes.join(' ')).toMatch(/doctor/);
-  });
-
-  it('produces no unsafe language in any plan', () => {
-    for (const p of [teen, child, adult]) {
-      for (let i = 0; i < 21; i++) {
-        const plan = generateDailyPlan({ profile: p, date: addDays(D, i), logs: [], checkIn: { date: addDays(D, i), energy: 3, fatigue: ((i % 5) + 1) as 1 | 2 | 3 | 4 | 5 } });
-        const text = [plan.title, plan.summary, plan.guidelineNote, ...plan.reasons, ...plan.notes, ...plan.items.map((x) => `${x.name} ${x.detail}`)].join(' ');
-        expect(findUnsafePhrases(text, getSafetyRules(p.age).ageGroup)).toEqual([]);
+  it('never uses unsafe language and never prescribes a workout', () => {
+    for (const p of [teen, child, adult70]) {
+      for (let n = 0; n < 10; n++) {
+        const logs = Array.from({ length: n }, (_, i) => exercise(addDays(D, -i), 20 + i * 10, i % 2 ? 'vigorous' : 'moderate', i % 3 ? 'football' : 'walking'));
+        for (const i of activityInsights({ logs, date: D, profile: p })) {
+          const text = `${i.title} ${i.text}`;
+          expect(findUnsafePhrases(text, getSafetyRules(p.age).ageGroup)).toEqual([]);
+          expect(text).not.toMatch(/\b(you should do|do \d+ (sets|reps)|today's plan|workout plan)\b/i);
+        }
       }
     }
   });

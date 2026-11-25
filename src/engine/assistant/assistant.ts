@@ -5,7 +5,8 @@ import type { CheckIn, ExerciseLog, MealType, Nutrients, SleepLog } from '../typ
 import { analyzeDay, joinOr, proteinFoodWords } from '../analysis/daily';
 import { defaultPortion, portionNutrients, suitableFor, sumNutrients } from '../nutrition/foodMath';
 import { recommendFoods, nextMealSlot, type FoodSuggestion, type RecContext } from '../recommendations/foodRecs';
-import { generateDailyPlan } from '../activity/engine';
+import { calcActivity, weeklyActivity } from '../activity/engine';
+import { ACTIVITIES } from '../activity/catalog';
 import { addDays, dayOfYear, toISODate } from '../dates';
 import { detectSafetyConcern, HELPLINES, type SafetyConcern } from './safety';
 import { findUnsafePhrases } from '../safety/language';
@@ -58,7 +59,7 @@ export const STARTER_PROMPTS = [
   'What should I eat for dinner?',
   'How can I improve my protein intake?',
   'What healthy Indian breakfast can I have?',
-  'What workout should I do today?',
+  'How active was I this week?',
   'Analyse my meals today.',
   'Suggest a healthy meal using what I have at home.',
 ];
@@ -84,7 +85,7 @@ export function classifyIntent(text: string, foods: Food[]): Intent {
   if (has(t, /\b(how many|calories in|protein in|carbs? in|fat in|nutrition (of|in|for)|is [a-z ]+ (healthy|good|ok|okay))\b/) && findFoodMentions(foods, t).length) return 'food_info';
   if (has(t, /\b(analy[sz]e|analysis|review|how (did|am|was) i|how was my|how('?s| is) my (day|diet|eating)|my meals today|today'?s meals|summary|rate my|check my (day|meals|food))\b/)) return 'analyze';
   if (has(t, /\bprotein\b/)) return 'protein';
-  if (has(t, /\b(work ?out|exercise|training|train|gym|activity|activities|yoga|sport|run|running|walk|cycling|fitness plan|stretch)\b/)) return 'workout';
+  if (has(t, /\b(work ?out|workouts|exercise|exercised|training|train|gym|active|activity|activities|yoga|sport|run|running|ran|walk|walked|cycling|fitness|stretch|steps)\b/)) return 'workout';
   if (has(t, /\b(breakfast|nashta|morning meal)\b/)) return 'meal_breakfast';
   if (has(t, /\blunch\b/)) return 'meal_lunch';
   if (has(t, /\b(dinner|supper|tonight|night meal)\b/)) return 'meal_dinner';
@@ -196,8 +197,8 @@ function safetyReply(kind: SafetyConcern, ctx: AssistantContext): AssistantReply
       return {
         intent: 'safety',
         safety: kind,
-        text: `There's no need to balance food out with exercise. Food is fuel and enjoyment, and one meal or treat doesn't undo anything.\n\nMovement is best for how it makes you feel: stronger, more energetic, better sleep. Your next meal can simply be a regular, balanced one.\n\nWould you like a workout idea for today that you'll enjoy?`,
-        suggestions: ['What workout should I do today?', 'What should I eat for dinner?'],
+        text: `There's no need to balance food out with exercise. Food is fuel and enjoyment, and one meal or treat doesn't undo anything.\n\nMovement is best for how it makes you feel: stronger, more energetic, better sleep. Your next meal can simply be a regular, balanced one.`,
+        suggestions: ['What should I eat for dinner?', 'How active was I this week?'],
       };
     case 'extreme_diet':
       return {
@@ -206,7 +207,7 @@ function safetyReply(kind: SafetyConcern, ctx: AssistantContext): AssistantReply
         text: youth
           ? `Fast or extreme diets aren't safe while you're still growing, and NutriTrack doesn't set weight-change targets for under-18s. What helps most: regular balanced meals, activity you enjoy, and good sleep.\n\nIf you're worried about your weight or body, please talk to a parent or doctor. They can give advice that fits you.`
           : `Very fast weight change usually means losing muscle and water, and it rarely lasts. A gradual pace of about 0.25–0.5 kg a week is safer and easier to keep.\n\nNutriTrack can set a gentle estimate if you choose "Weight management" in your profile. For bigger goals, a registered dietitian can build a plan around your health.`,
-        suggestions: ['How can I improve my protein intake?', 'What workout should I do today?'],
+        suggestions: ['How can I improve my protein intake?', 'How active was I this week?'],
       };
     case 'medical':
       return {
@@ -292,15 +293,38 @@ function proteinReply(ctx: AssistantContext): AssistantReply {
   return { intent: 'protein', text: lines.join('\n'), foods: top.slice(0, 3).map((x) => ({ foodId: x.f.id, name: x.f.name, portionId: x.p.id, portionLabel: x.p.label, kcal: x.n.kcal, protein: x.n.protein })), suggestions: ['What should I eat for dinner?', 'Suggest a high-protein snack'] };
 }
 
-function workoutReply(ctx: AssistantContext): AssistantReply {
-  const plan = generateDailyPlan({ profile: ctx.profile, date: ctx.date, logs: ctx.exerciseHistory, checkIn: ctx.checkIn, sleep: ctx.sleep });
-  const lines = [`**${plan.title}** (about ${plan.totalMinutes} min)`, plan.summary, ''];
-  plan.items.forEach((i) => lines.push(`- ${i.name}: ${i.detail}${i.kind === 'everyday' ? '' : ` (${i.minutes} min)`}`));
-  if (plan.reasons.length) lines.push('', `Why: ${plan.reasons.join(' ')}`);
-  if (plan.notes.length) lines.push('', plan.notes.join(' '));
-  lines.push('', plan.guidelineNote);
-  lines.push('', 'Open the Move tab to use the timer and tick off each part.');
-  return { intent: 'workout', text: lines.join('\n'), suggestions: ['What should I eat after a workout?', 'How much water should I drink?'] };
+function activityReply(ctx: AssistantContext): AssistantReply {
+  const rules = ctx.targets.rules;
+  const youth = rules.ageGroup === 'child' || rules.ageGroup === 'teen';
+  const week = weeklyActivity(ctx.exerciseHistory.filter((l) => l.date <= ctx.date), ctx.date, rules, ctx.profile);
+  const today = ctx.exerciseHistory.filter((l) => l.date === ctx.date);
+  const lines: string[] = [];
+  if (today.length) {
+    lines.push('**Today**');
+    for (const l of today) {
+      const c = calcActivity(l, ctx.profile);
+      lines.push(`- ${ACTIVITIES[l.activity].label}: ${l.minutes} min, ${c.intensity}${c.distanceKm ? `, ${c.distanceKm} km` : ''}${c.kcal !== undefined ? `, about ${c.kcal} kcal` : ''}`);
+    }
+    if (ctx.day.extraKcal > 0 || ctx.day.waterMl > ctx.targets.waterMl) {
+      lines.push(
+        youth
+          ? 'Because you were active, your body needs a little more food and water today.'
+          : `Because of this, today's estimates went up${ctx.day.extraKcal > 0 ? ` by about ${ctx.day.extraKcal} kcal` : ''}${ctx.day.waterMl > ctx.targets.waterMl ? ` and ${((ctx.day.waterMl - ctx.targets.waterMl) / 1000).toFixed(2).replace(/0$/, '')} L of water` : ''}.`,
+      );
+    }
+  } else {
+    lines.push("You haven't logged any activity today. When you do something active, log it in the Move tab and I'll factor it into your food and water estimates.");
+  }
+  lines.push('', '**This week**');
+  lines.push(
+    youth
+      ? `- ${week.totalMinutes} active minutes (about 420 a week averages 60 a day)`
+      : `- ${week.guidelineMinutes} of ${week.guidelineTarget} guideline minutes (vigorous count double)`,
+  );
+  lines.push(`- ${week.activeDays} active day${week.activeDays === 1 ? '' : 's'}, ${week.strengthDays} with strength activity`);
+  if (week.kcal) lines.push(`- About ${week.kcal} kcal used through logged activity (estimate)`);
+  if (week.byActivity.length) lines.push(`- Most time on ${ACTIVITIES[week.byActivity[0].activity].label.toLowerCase()} (${week.byActivity[0].minutes} min)`);
+  return { intent: 'workout', text: lines.join('\n'), suggestions: ['What should I eat after being active?', 'How much water should I drink?'] };
 }
 
 function analyzeReply(ctx: AssistantContext): AssistantReply {
@@ -436,8 +460,8 @@ function sleepReply(ctx: AssistantContext): AssistantReply {
   ];
   if (ctx.sleep) lines.push(`You logged ${ctx.sleep.hours} hours last night.`);
   lines.push('', '- Keep a regular bedtime, even on weekends', '- Put screens away 30–60 minutes before bed', '- Avoid tea or coffee late in the day', '- A short walk outdoors in daylight helps your body clock');
-  if (ctx.checkIn && ctx.checkIn.fatigue >= 4) lines.push('', 'You said you feel quite tired today, so your plan is lighter. Rest days are part of getting fitter.');
-  return { intent: 'sleep', text: lines.join('\n'), suggestions: ['What workout should I do today?'] };
+  if (ctx.checkIn && ctx.checkIn.fatigue >= 4) lines.push('', 'You said you feel quite tired today. Rest and easy days are part of getting fitter.');
+  return { intent: 'sleep', text: lines.join('\n'), suggestions: ['How active was I this week?'] };
 }
 
 function weightReply(ctx: AssistantContext): AssistantReply {
@@ -446,14 +470,14 @@ function weightReply(ctx: AssistantContext): AssistantReply {
     return {
       intent: 'weight',
       text: 'Growing bodies come in all shapes and sizes, and they change a lot as you grow. NutriTrack does not set weight goals for children. Regular meals, active play and good sleep are what matter. If you have questions about your growth, talk to a parent and your doctor.',
-      suggestions: ['What is a good snack?', 'What workout should I do today?'],
+      suggestions: ['What is a good snack?', 'How active was I this week?'],
     };
   }
   if (rules.ageGroup === 'teen') {
     return {
       intent: 'weight',
       text: 'During your teens your body is still growing, so weight naturally changes. NutriTrack does not set weight-change or calorie targets for under-18s. What helps most:\n\n- Regular meals with protein, vegetables and whole grains\n- About 60 minutes of activity you enjoy most days\n- 8–10 hours of sleep\n\nIf you are worried about your weight or how your body is changing, a doctor or registered dietitian can give advice that fits you.',
-      suggestions: ['How can I improve my protein intake?', 'What workout should I do today?'],
+      suggestions: ['How can I improve my protein intake?', 'How active was I this week?'],
     };
   }
   const t = ctx.targets;
@@ -468,7 +492,7 @@ function weightReply(ctx: AssistantContext): AssistantReply {
     '- Strength training 2+ days a week to keep muscle',
     '- Consistency over perfection; weekly trends matter more than single days',
   );
-  return { intent: 'weight', text: lines.concat(t.notes.length ? ['', t.notes[0]] : []).join('\n'), suggestions: ['How can I improve my protein intake?', 'What workout should I do today?'] };
+  return { intent: 'weight', text: lines.concat(t.notes.length ? ['', t.notes[0]] : []).join('\n'), suggestions: ['How can I improve my protein intake?', 'How active was I this week?'] };
 }
 
 function foodInfoReply(ctx: AssistantContext, text: string): AssistantReply {
@@ -504,7 +528,7 @@ function foodInfoReply(ctx: AssistantContext, text: string): AssistantReply {
 function helpReply(): AssistantReply {
   return {
     intent: 'help',
-    text: "I'm your NutriTrack coach. I use your profile and food log to help with:\n\n- Meal ideas for breakfast, lunch, dinner and snacks\n- Getting enough protein with everyday Indian foods\n- A workout plan for today\n- A quick analysis of what you've eaten\n- Recipes from what you have at home\n- Nutrition for a specific food (\"How much protein in paneer?\")\n\nI don't give medical advice or diets for medical conditions.",
+    text: "I'm your NutriTrack coach. I use your profile and food log to help with:\n\n- Meal ideas for breakfast, lunch, dinner and snacks\n- Getting enough protein with everyday Indian foods\n- A summary of the activity you've logged\n- A quick analysis of what you've eaten\n- Recipes from what you have at home\n- Nutrition for a specific food (\"How much protein in paneer?\")\n\nI don't give medical advice or diets for medical conditions.",
     suggestions: STARTER_PROMPTS.slice(0, 4),
   };
 }
@@ -538,7 +562,7 @@ export function respond(ctx: AssistantContext, text: string): AssistantReply {
       reply = /\bsnack\b/i.test(text) ? mealReply(ctx, 'snack') : proteinReply(ctx);
       break;
     case 'workout':
-      reply = /\b(eat|food|meal)\b/i.test(text) ? mealReply(ctx, 'snack') : workoutReply(ctx);
+      reply = /\b(eat|food|meal)\b/i.test(text) ? mealReply(ctx, 'snack') : activityReply(ctx);
       break;
     case 'analyze':
       reply = analyzeReply(ctx);
@@ -561,7 +585,7 @@ export function respond(ctx: AssistantContext, text: string): AssistantReply {
     case 'greeting':
       reply = {
         intent,
-        text: `Namaste${ctx.profile.name ? ` ${ctx.profile.name.split(' ')[0]}` : ''}! What can I help with today? I can suggest meals, check your protein, plan a workout or look over what you've eaten.`,
+        text: `Namaste${ctx.profile.name ? ` ${ctx.profile.name.split(' ')[0]}` : ''}! What can I help with today? I can suggest meals, check your protein, summarise your activity or look over what you've eaten.`,
         suggestions: STARTER_PROMPTS.slice(0, 4),
       };
       break;
