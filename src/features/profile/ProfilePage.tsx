@@ -25,6 +25,7 @@ export default function ProfilePage() {
   const [pwOpen, setPwOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [apiKey, setApiKey] = useState(db.preferences.claudeApiKey ?? '');
+  const [pendingImport, setPendingImport] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const email = state.status === 'signed_in' ? state.session.email : '';
 
@@ -48,9 +49,7 @@ export default function ProfilePage() {
       toast('That file is too large to be a NutriTrack backup.', 'error');
       return;
     }
-    const text = await file.text();
-    if (!window.confirm('Importing replaces the data in this account with the backup. Continue?')) return;
-    await run(() => store.importBackup(text), 'Backup restored');
+    setPendingImport(await file.text());
   };
 
   return (
@@ -206,6 +205,26 @@ export default function ProfilePage() {
 
       {editing && <EditProfileSheet onClose={() => setEditing(false)} />}
       {pwOpen && <ChangePasswordSheet onClose={() => setPwOpen(false)} />}
+      <Sheet open={pendingImport !== null} onClose={() => setPendingImport(null)} title="Restore backup?">
+        <div className="space-y-4 pb-2">
+          <p className="text-sm text-forest-700">Restoring replaces everything in this account with the backup's profile and logs.</p>
+          <div className="flex gap-2">
+            <button className="btn-secondary flex-1" onClick={() => setPendingImport(null)}>
+              Cancel
+            </button>
+            <button
+              className="btn-primary flex-1"
+              onClick={async () => {
+                const text = pendingImport ?? '';
+                setPendingImport(null);
+                await run(() => store.importBackup(text), 'Backup restored');
+              }}
+            >
+              Replace my data
+            </button>
+          </div>
+        </div>
+      </Sheet>
       <Sheet open={deleteOpen} onClose={() => setDeleteOpen(false)} title="Delete account?">
         <DeleteConfirm onCancel={() => setDeleteOpen(false)} onConfirm={deleteAccount} />
       </Sheet>

@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "vite build && node e2e/run.mjs",
+    "build:preview": "node scripts/build-artifact.mjs",
     "seed:sql": "tsx --tsconfig tsconfig.json scripts/generate-food-seed.ts"
   },
   "dependencies": {

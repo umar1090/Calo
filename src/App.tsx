@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import { AppShell } from '@/components/AppShell';
@@ -77,13 +77,16 @@ function Gate() {
   return <SignedIn key={state.session.userId} />;
 }
 
+// The single-file preview build runs inside a host frame that doesn't allow path or "#/" URLs.
+const Router = import.meta.env.MODE === 'artifact' ? MemoryRouter : BrowserRouter;
+
 export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <Router>
           <Gate />
-        </BrowserRouter>
+        </Router>
       </AuthProvider>
     </ToastProvider>
   );
