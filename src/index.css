@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --chart-1: #1f7f5c;
+    --chart-2: #d9772e;
+    --chart-3: #3f6fc0;
+    --chart-single: #587650;
+    --chart-grid: #ebe4d6;
+    --chart-axis: #61786a;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-cream-100 font-sans text-forest-900 antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+  }
+  h1, h2, h3 {
+    @apply text-forest-900;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-sage-500 ring-offset-2 ring-offset-cream-100;
+  }
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-cream-300/70 bg-cream-50 shadow-card;
+  }
+  .card-pad {
+    @apply p-5 sm:p-6;
+  }
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-forest-500;
+  }
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-sage-600 text-cream-50 shadow-sm hover:bg-sage-700;
+  }
+  .btn-secondary {
+    @apply btn border border-cream-300 bg-cream-50 text-forest-800 hover:bg-cream-200;
+  }
+  .btn-ghost {
+    @apply btn text-forest-700 hover:bg-cream-200;
+  }
+  .btn-accent {
+    @apply btn bg-clay-400 text-white hover:bg-clay-500;
+  }
+  .btn-icon {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-full text-forest-700 transition hover:bg-cream-200 active:scale-95 disabled:opacity-40;
+  }
+  .input {
+    @apply block min-h-[44px] w-full rounded-2xl border border-cream-300 bg-white px-4 text-[15px] text-forest-900 placeholder:text-forest-400 focus:border-sage-500 focus:outline-none focus:ring-2 focus:ring-sage-200;
+  }
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-forest-700;
+  }
+  .chip {
+    @apply inline-flex min-h-[40px] items-center gap-2 rounded-full border border-cream-300 bg-cream-50 px-4 text-sm font-medium text-forest-700 transition hover:border-sage-300 active:scale-[0.98];
+  }
+  .chip-on {
+    @apply border-sage-600 bg-sage-600 text-cream-50 hover:border-sage-700;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Grid items default to min-width: auto, which lets wide content (tables, long
+   unbroken food names) stretch the whole column past the phone viewport. */
+.grid > * {
+  min-width: 0;
+}
+
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
